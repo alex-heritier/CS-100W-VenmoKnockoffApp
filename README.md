@@ -1,3 +1,4 @@
 # CS-144-VenmoKnockoffApp
 
-c++11
+Compiling with Cygwin 
+gcc dialect: c++11
