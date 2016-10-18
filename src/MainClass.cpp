@@ -7,6 +7,7 @@
 
 using namespace std;
 
+void processCommand(string &, VenmoKnockoffApp &);
 void processCreateUser(vector<string> &);
 void processLogin(vector<string> &);
 void processPay(vector<string> &);
@@ -56,17 +57,53 @@ void processCreateUser(vector<string> &params)
 
 void processLogin(vector<string> &params)
 {
-	// TODO
+	string username;
+	string password;
+
+	cout << "What is your username?" << endl;
+	cout << "> ";
+	getline(std::cin, username);
+
+	cout << "What is your password?" << endl;
+        cout << "> ";
+        getline(std::cin, password);
+
+	params.push_back(username);
+	params.push_back(password);
 }
 
 void processPay(vector<string> &params)
 {
-	// TODO
+	string otherUsername;
+	string amount;
+
+	cout << "Who are you paying?" << endl;
+	cout << "> ";
+	getline(std::cin, otherUsername);
+
+	cout << "How much are you sending?" << endl;
+	cout << "> ";
+	getline(std::cin, amount);
+
+	params.push_back(otherUsername);
+	params.push_back(amount);
 }
 
 void processAddFunds(vector<string> &params)
 {
-	// TODO
+	string fundTag;
+	string amount;
+	
+	cout << "What fund source are you pulling from?" << endl;
+        cout << "> ";
+        getline(std::cin, fundTag);
+
+        cout << "How much are you withdrawing?" << endl;
+        cout << "> ";
+        getline(std::cin, amount);
+
+        params.push_back(fundTag);
+        params.push_back(amount);
 }
 
 int main(int argc, char **argv)
