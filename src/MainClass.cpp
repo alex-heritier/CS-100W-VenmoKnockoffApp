@@ -23,16 +23,16 @@ void processCommand(string &command, VenmoKnockoffApp &app)
 	vector<string> params;
 	if (command == createUserCommand) {
 		processCreateUser(params);
-		// app.createUser(params[0]);		
+		app.createUser(params[0], params[1]);
 	} else if (command == loginCommand) {
 		processLogin(params);
-		// app.login(params[0], params[1]);
+		app.login(params[0], params[1]);
 	} else if (command == payCommand) {
 		processPay(params);
-		// app.pay(params[0], std::stoi(params[1]));
+		app.pay(params[0], std::stoi(params[1]));
 	} else if (command == addFundsCommand) {
 		processAddFunds(params);
-		// app.addFunds(params[0], params[1]);
+		app.addFunds(params[0], std::stoi(params[1]));
 	} else {
 		throw NonexistentCommandException(command);
 	}
@@ -122,6 +122,7 @@ int main(int argc, char **argv)
 			cout << "Nonexistent command entered." << endl;
 		}
 
+		cout << endl;
 		cout << "Enter a command." << endl;
                 cout << "> ";
    	}
