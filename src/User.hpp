@@ -31,7 +31,7 @@ public:
 private:
 	string username;
 	int balance;
-	vector<shared_ptr<FundSource>> funders;
+	vector<shared_ptr<FundSource> > funders;
 
 };
 
