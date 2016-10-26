@@ -1,3 +1,4 @@
 *.out
 lib/*
 build/*
+test.txt

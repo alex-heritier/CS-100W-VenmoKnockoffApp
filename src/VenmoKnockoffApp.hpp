@@ -4,6 +4,7 @@
 
 #include <string>
 
+#include "ServerConnection.hpp"
 #include "User.hpp"
 
 class VenmoKnockoffApp {
@@ -15,6 +16,7 @@ public:
 	void addFunds(string &, int);
 private:
 	User user;
+	ServerConnection serverConnection;
 };
 
 #endif

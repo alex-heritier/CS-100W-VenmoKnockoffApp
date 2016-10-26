@@ -36,6 +36,14 @@ User::~User() {
 }
 
 /**
+ * @return a string containing the username.
+ */
+string User::getUsername() const
+{
+	return username;
+}
+
+/**
  * @return a string containing the username, balance, and an indexed list of outside sources of funds.
  */
 string User::toString() const

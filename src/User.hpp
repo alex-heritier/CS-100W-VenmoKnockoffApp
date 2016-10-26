@@ -22,6 +22,7 @@ public:
 	User(const string& username);
 	User(const string& username, int balance);
 	virtual ~User();
+	string getUsername() const;
 	string toString() const;
 	string addFunds(int fundIndex, int amount);
 	int getBalance() const;
