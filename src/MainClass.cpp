@@ -81,7 +81,7 @@ void processPay(vector<string> &params)
 	cout << "> ";
 	getline(std::cin, otherUsername);
 
-	cout << "How much are you sending?" << endl;
+	cout << "How much are you sending in cents?" << endl;
 	cout << "> ";
 	getline(std::cin, amount);
 
@@ -98,7 +98,7 @@ void processAddFunds(vector<string> &params)
         cout << "> ";
         getline(std::cin, fundTag);
 
-        cout << "How much are you withdrawing?" << endl;
+        cout << "How much are you withdrawing in cents?" << endl;
         cout << "> ";
         getline(std::cin, amount);
 
