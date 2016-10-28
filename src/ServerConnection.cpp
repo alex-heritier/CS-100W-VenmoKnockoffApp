@@ -36,6 +36,7 @@ void ServerConnection::init_client(string client_path)
         cout << "Socket identifier is " << sock << endl;
 
         // bind the client socket
+	cout << "Binding to " << client_path << endl;
         unlink(socket_path.c_str());
         if (bind(sock, (struct sockaddr *) &client_addr, sizeof(client_addr)) < 0) {
                 perror("Binding name to datagram socket");
@@ -63,18 +64,19 @@ void ServerConnection::init_server(std::string server_path)
         }
 }
 
-ServerConnection::ServerConnection(string client_path, string server_path): sock(-1), socket_path(client_path)
+ServerConnection::ServerConnection(string client_path, string server_path):
+	sock(-1), socket_path(client_path), debug(false)
 {
 	init_client(client_path);
 	init_server(server_path);
 }
 
-ServerConnection::ServerConnection(string client_path): sock(-1), socket_path(client_path)
+ServerConnection::ServerConnection(string client_path): sock(-1), socket_path(client_path), debug(false)
 {
 	init_client(client_path);
 }
 
-ServerConnection::ServerConnection(): sock(-69), socket_path("") {
+ServerConnection::ServerConnection(): sock(-1), debug(false) {
 	string client_socket_path("/tmp/client_socket");
 	string server_socket_path("/tmp/server_socket");
 	
@@ -94,10 +96,10 @@ ServerConnection::~ServerConnection()
 
 void ServerConnection::sendData(string &msg)
 {
-	sendData((void *)msg.c_str(), msg.length() + 1);
+	sendData(static_cast<const void *>(msg.c_str()), msg.length() + 1);
 }
 
-void ServerConnection::sendData(void *buf, unsigned int buf_length)
+void ServerConnection::sendData(const void *buf, unsigned int buf_length)
 {
 	if (send(sock, buf, buf_length, 0) < 0) {
                 perror("Socket write");
@@ -105,7 +107,12 @@ void ServerConnection::sendData(void *buf, unsigned int buf_length)
         }
 }
 
-void ServerConnection::sendData(string &socket_path, void *buf, unsigned int buf_length)
+void ServerConnection::sendData(string &socket_path, string &msg)
+{       
+        sendData(socket_path, static_cast<const void *>(msg.c_str()), msg.length() + 1);
+}
+
+void ServerConnection::sendData(string &socket_path, const void *buf, unsigned int buf_length)
 {
 	struct sockaddr_un socket_addr;
 
@@ -114,12 +121,10 @@ void ServerConnection::sendData(string &socket_path, void *buf, unsigned int buf
 	socket_addr.sun_family = AF_UNIX;
 	strncpy(socket_addr.sun_path, socket_path.c_str(), socket_path.length() + 1);
 
-	if (connect(sock, (struct sockaddr *) &socket_addr, sizeof(socket_addr)) < 0) {
-		perror("Connecting to server");
-		exit(-1);
+	if (sendto(sock, buf, buf_length, 0, (struct sockaddr *) &socket_addr, sizeof(socket_addr)) < 0) {
+                perror("Socket write");
+                exit(-1);
         }
-
-	sendData(buf, buf_length);
 }
 
 string ServerConnection::readData(unsigned char *buf)
@@ -134,13 +139,20 @@ string ServerConnection::readData(unsigned char *buf)
                 perror("Reading socket");
                 exit(-1);
         }
-        cout << "Bytes read: " << bytes_read << endl;
-        cout << "The bytes read were: " << endl;
-        for (int i = 0; i < bytes_read; i++) {
-                cout << (char)buf[i];
-        }
-        cout << endl;
-	
+
+	if (debug) {
+        	cout << "Bytes read: " << bytes_read << endl;
+        	cout << "The bytes read were: " << endl;
+        	for (int i = 0; i < bytes_read; i++) {
+                	cout << (char)buf[i];
+        	}
+        	cout << endl;
+	}	
+
 	return string(client_addr.sun_path);
 }
 
+void ServerConnection::setDebug(bool b)
+{
+	debug = b;
+}

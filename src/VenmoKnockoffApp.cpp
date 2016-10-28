@@ -1,7 +1,7 @@
 
 #include <iostream>
 #include <string>
-
+#include <thread>
 
 #include "UserData.hpp"
 #include "PayData.hpp"
@@ -14,7 +14,33 @@ using namespace std;
 
 VenmoKnockoffApp::VenmoKnockoffApp():
 	user(User("")),
-	serverConnection() {}
+	serverConnection()
+{
+	readThread = thread(&VenmoKnockoffApp::captureResponses, this);
+}
+
+void VenmoKnockoffApp::captureResponses()
+{
+	unsigned char buf[MAX_PAYLOAD_SIZE];
+
+	while (true) {
+        	string sender = serverConnection.readData(buf);
+
+		cout << "Getting reponse from server..." << endl;
+		response = string(reinterpret_cast<char *>(buf));
+	}
+}
+
+bool VenmoKnockoffApp::getResponse(string &res)
+{
+	if (response.empty()) {
+		return false;
+	} else {
+		res = response;
+		response = "";
+		return true;
+	}
+}
 
 void VenmoKnockoffApp::createUser(string &username, string &password)
 {
@@ -23,13 +49,19 @@ void VenmoKnockoffApp::createUser(string &username, string &password)
 		return;
 	}
 	
-	// create account
+	// prepare user create data
 	UserData userData(username, password);
 	unsigned char buf[userData.size() + 1]; // extra byte for command type
 	buf[0] = CommandType::CREATE_USER;
 	userData.serialize(buf + 1);
 
+	// send user create data
 	serverConnection.sendData(buf, sizeof(buf));	
+
+	// wait for response
+        string res;
+        while (!getResponse(res)) {}    // wait for response
+        cout << res << endl;
 
 	// login after creating account
 	login(username, password);
@@ -42,13 +74,20 @@ void VenmoKnockoffApp::login(string &username, string &password)
 		return;
 	}
 
-	// authenticate login
+	// prepare login data
         UserData userData(username, password);
         unsigned char buf[userData.size() + 1]; // extra byte for command type
         buf[0] = CommandType::LOGIN;
         userData.serialize(buf + 1);
         
+	// send login data
         serverConnection.sendData(buf, sizeof(buf));
+
+	// wait for response
+        string res;
+        while (!getResponse(res)) {}    // wait for response
+        cout << res << endl;
+
 
 	// set current user
 	user = User(username);
@@ -56,22 +95,34 @@ void VenmoKnockoffApp::login(string &username, string &password)
 
 void VenmoKnockoffApp::pay(string &username, int amount)
 {
-	// send money to user
+	// prepare pay data
 	PayData payData(username, amount);
 	unsigned char buf[payData.size() + 1]; // extra byte for command type
 	buf[0] = CommandType::PAY;
 	payData.serialize(buf + 1);
 
+	// send pay data
 	serverConnection.sendData(buf, sizeof(buf));
+
+	// wait for response
+	string res;
+	while (!getResponse(res)) {}	// wait for response
+	cout << res << endl;
 }
 
 void VenmoKnockoffApp::addFunds(string &fundTag, int amount)
 {
-	// pull money from fund surce
+	// prepare add fund data
         AddFundsData addFundsData(fundTag, amount); 
         unsigned char buf[addFundsData.size() + 1]; // extra byte for command type
         buf[0] = CommandType::ADD_FUNDS;
         addFundsData.serialize(buf + 1);
 
+	// send add fund data
         serverConnection.sendData(buf, sizeof(buf));
+
+	// wait for response
+        string res;
+        while (!getResponse(res)) {}    // wait for response
+        cout << res << endl;
 }
