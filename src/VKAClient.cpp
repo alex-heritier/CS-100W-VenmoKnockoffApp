@@ -3,23 +3,23 @@
 #include <string>
 #include <thread>
 
+#include "VKAClient.hpp"
+#include "CommandData.hpp"
 #include "UserData.hpp"
 #include "PayData.hpp"
 #include "AddFundsData.hpp"
-#include "CommandData.hpp"
 #include "User.hpp"
-#include "VenmoKnockoffApp.hpp"
 
 using namespace std;
 
-VenmoKnockoffApp::VenmoKnockoffApp():
+VKAClient::VKAClient():
 	user(User("")),
 	serverConnection()
 {
-	readThread = thread(&VenmoKnockoffApp::captureResponses, this);
+	readThread = thread(&VKAClient::captureResponses, this);
 }
 
-void VenmoKnockoffApp::captureResponses()
+void VKAClient::captureResponses()
 {
 	unsigned char buf[MAX_PAYLOAD_SIZE];
 
@@ -31,7 +31,7 @@ void VenmoKnockoffApp::captureResponses()
 	}
 }
 
-bool VenmoKnockoffApp::getResponse(string &res)
+bool VKAClient::getResponse(string &res)
 {
 	if (response.empty()) {
 		return false;
@@ -42,13 +42,13 @@ bool VenmoKnockoffApp::getResponse(string &res)
 	}
 }
 
-void VenmoKnockoffApp::createUser(string &username, string &password)
+void VKAClient::createUser(string &username, string &password)
 {
 	if (!user.getUsername().empty()) { // check if already logged in
 		cerr << "Can't create a new user if already logged in." << endl;
 		return;
 	}
-	
+
 	// prepare user create data
 	UserData userData(username, password);
 	unsigned char buf[userData.size() + 1]; // extra byte for command type
@@ -56,7 +56,7 @@ void VenmoKnockoffApp::createUser(string &username, string &password)
 	userData.serialize(buf + 1);
 
 	// send user create data
-	serverConnection.sendData(buf, sizeof(buf));	
+	serverConnection.sendData(buf, sizeof(buf));
 
 	// wait for response
         string res;
@@ -67,7 +67,7 @@ void VenmoKnockoffApp::createUser(string &username, string &password)
 	login(username, password);
 }
 
-void VenmoKnockoffApp::login(string &username, string &password)
+void VKAClient::login(string &username, string &password)
 {
 	if (!user.getUsername().empty()) { // check if already logged in
 		cerr << "Can't login when already logged in." << endl;
@@ -79,7 +79,7 @@ void VenmoKnockoffApp::login(string &username, string &password)
         unsigned char buf[userData.size() + 1]; // extra byte for command type
         buf[0] = CommandType::LOGIN;
         userData.serialize(buf + 1);
-        
+
 	// send login data
         serverConnection.sendData(buf, sizeof(buf));
 
@@ -93,7 +93,7 @@ void VenmoKnockoffApp::login(string &username, string &password)
 	user = User(username);
 }
 
-void VenmoKnockoffApp::pay(string &username, int amount)
+void VKAClient::pay(string &username, int amount)
 {
 	// prepare pay data
 	PayData payData(username, amount);
@@ -110,10 +110,10 @@ void VenmoKnockoffApp::pay(string &username, int amount)
 	cout << res << endl;
 }
 
-void VenmoKnockoffApp::addFunds(string &fundTag, int amount)
+void VKAClient::addFunds(string &fundTag, int amount)
 {
 	// prepare add fund data
-        AddFundsData addFundsData(fundTag, amount); 
+        AddFundsData addFundsData(fundTag, amount);
         unsigned char buf[addFundsData.size() + 1]; // extra byte for command type
         buf[0] = CommandType::ADD_FUNDS;
         addFundsData.serialize(buf + 1);

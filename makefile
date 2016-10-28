@@ -2,18 +2,18 @@ FLAGS = -g -Wall -std=c++11 -stdlib=libc++
 LFLAGS = $(FLAGS)
 CFLAGS = $(FLAGS) -c
 
-# MainClass clients
-build/main: lib/MainClass.o lib/NonexistentCommandException.o lib/VenmoKnockoffApp.o lib/User.o lib/NotEnoughFundsException.o lib/helper_funs.o lib/ServerConnection.o lib/Serializable.o lib/UserData.o lib/PayData.o lib/AddFundsData.o
-	g++ $(LFLAGS) lib/MainClass.o lib/NonexistentCommandException.o lib/VenmoKnockoffApp.o lib/User.o lib/NotEnoughFundsException.o lib/helper_funs.o lib/ServerConnection.o lib/Serializable.o lib/UserData.o lib/PayData.o  lib/AddFundsData.o -o build/main
+# VKA_User client
+build/main: lib/VKA_User.o lib/NonexistentCommandException.o lib/VKAClient.o lib/User.o lib/NotEnoughFundsException.o lib/helper_funs.o lib/ServerConnection.o lib/Serializable.o lib/UserData.o lib/PayData.o lib/AddFundsData.o
+	g++ $(LFLAGS) lib/VKA_User.o lib/NonexistentCommandException.o lib/VKAClient.o lib/User.o lib/NotEnoughFundsException.o lib/helper_funs.o lib/ServerConnection.o lib/Serializable.o lib/UserData.o lib/PayData.o  lib/AddFundsData.o -o build/main
 
-lib/MainClass.o: src/MainClass.cpp src/NonexistentCommandException.hpp src/VenmoKnockoffApp.hpp
-	g++ $(CFLAGS) src/MainClass.cpp -o lib/MainClass.o
+lib/VKA_User.o: src/VKA_User.cpp src/NonexistentCommandException.hpp src/VKAClient.hpp
+	g++ $(CFLAGS) src/VKA_User.cpp -o lib/VKA_User.o
 
 lib/NonexistentCommandException.o: src/NonexistentCommandException.cpp src/NonexistentCommandException.hpp
 	g++ $(CFLAGS) src/NonexistentCommandException.cpp -o lib/NonexistentCommandException.o
 
-lib/VenmoKnockoffApp.o: src/VenmoKnockoffApp.cpp src/VenmoKnockoffApp.hpp src/User.hpp src/ServerConnection.hpp src/CommandData.hpp src/UserData.hpp src/PayData.hpp src/AddFundsData.hpp
-	g++ $(CFLAGS) src/VenmoKnockoffApp.cpp -o lib/VenmoKnockoffApp.o
+lib/VKAClient.o: src/VKAClient.cpp src/VKAClient.hpp src/User.hpp src/ServerConnection.hpp src/CommandData.hpp src/UserData.hpp src/PayData.hpp src/AddFundsData.hpp
+	g++ $(CFLAGS) src/VKAClient.cpp -o lib/VKAClient.o
 
 lib/User.o: src/User.cpp src/User.hpp src/helper_funs.hpp
 	g++ $(CFLAGS) src/User.cpp -o lib/User.o
@@ -46,6 +46,13 @@ build/server: lib/VKALocalServer.o lib/Serializable.o lib/UserData.o lib/PayData
 lib/VKALocalServer.o: src/VKALocalServer.cpp src/CommandData.hpp src/Serializable.hpp src/UserData.hpp src/PayData.hpp src/AddFundsData.hpp src/ServerConnection.hpp
 	g++ $(CFLAGS) src/VKALocalServer.cpp -o lib/VKALocalServer.o
 
+# VKA_AI client
+build/ai: lib/VKA_AI.o lib/VKAClient.o lib/User.o lib/NotEnoughFundsException.o lib/helper_funs.o lib/ServerConnection.o lib/Serializable.o lib/UserData.o lib/PayData.o lib/AddFundsData.o
+	g++ $(LFLAGS) lib/VKA_AI.o lib/VKAClient.o lib/User.o lib/NotEnoughFundsException.o lib/helper_funs.o lib/ServerConnection.o lib/Serializable.o lib/UserData.o lib/PayData.o lib/AddFundsData.o -o build/ai
+
+lib/VKA_AI.o: src/VKA_AI.cpp src/VKAClient.hpp
+	g++ $(CFLAGS) src/VKA_AI.cpp -o lib/VKA_AI.o
+
 # General stuff
 clean:
 	rm -f build/*
@@ -56,3 +63,6 @@ run: build/main
 
 server: build/server
 	./build/server
+
+ai: build/ai
+	./build/ai

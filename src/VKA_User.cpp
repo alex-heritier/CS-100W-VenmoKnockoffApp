@@ -3,22 +3,22 @@
 #include <string>
 
 #include "NonexistentCommandException.hpp"
-#include "VenmoKnockoffApp.hpp"
+#include "VKAClient.hpp"
 
 using namespace std;
 
-void processCommand(string &, VenmoKnockoffApp &);
+void processCommand(string &, VKAClient &);
 void processCreateUser(vector<string> &);
 void processLogin(vector<string> &);
 void processPay(vector<string> &);
 void processAddFunds(vector<string> &);
 
-void processCommand(string &command, VenmoKnockoffApp &app)
+void processCommand(string &command, VKAClient &app)
 {
-	string createUserCommand("create_user");
-	string loginCommand("login");
-	string payCommand("pay");
-	string addFundsCommand("add_funds");
+	string createUserCommand   = "create_user";
+	string loginCommand        = "login";
+	string payCommand          = "pay";
+	string addFundsCommand     = "add_funds";
 
 	vector<string> params;
 	if (command == createUserCommand) {
@@ -42,7 +42,7 @@ void processCreateUser(vector<string> &params)
 {
 	string username;
 	string password;
-	
+
 	cout << "What is your username?" << endl;
 	cout << "> ";
 	getline(std::cin, username);
@@ -93,7 +93,7 @@ void processAddFunds(vector<string> &params)
 {
 	string fundTag;
 	string amount;
-	
+
 	cout << "What fund source are you pulling from?" << endl;
         cout << "> ";
         getline(std::cin, fundTag);
@@ -108,22 +108,20 @@ void processAddFunds(vector<string> &params)
 
 int main(int argc, char **argv)
 {
-	VenmoKnockoffApp app;
-
-        cout << "Enter a command." << endl;
-	cout << "> ";
+	VKAClient app;
 
 	string cmd;
-    	while(getline(std::cin, cmd)) {
-		try {
-			processCommand(cmd, app);
-		} catch (NonexistentCommandException &e) {
-			cout << "Nonexistent command entered." << endl;
-		}
-
+	while(true) {
 		cout << endl;
-		cout << "Enter a command." << endl;
-                cout << "> ";
-   	}
-    	return 0;
+        	cout << "Enter a command." << endl;
+        	cout << "> ";
+        	getline(std::cin, cmd);
+
+        	try {
+            		processCommand(cmd, app);
+        	} catch (const NonexistentCommandException &e) {
+           		cout << "Nonexistent command entered." << endl;
+        	}
+    	}
+	return 0;
 }

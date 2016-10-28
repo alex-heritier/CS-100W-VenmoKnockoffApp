@@ -1,6 +1,6 @@
 
-#ifndef VENMO_KNOCKOFF_APP_HPP
-#define VENMO_KNOCKOFF_APP_HPP
+#ifndef VKA_CLIENT_HPP
+#define VKA_CLIENT_HPP
 
 #include <string>
 #include <thread>
@@ -8,9 +8,9 @@
 #include "ServerConnection.hpp"
 #include "User.hpp"
 
-class VenmoKnockoffApp {
+class VKAClient {
 public:
-	VenmoKnockoffApp();
+	VKAClient();
 	void createUser(string &, string &);
 	void login(string &, string &);
 	void pay(string &, int);
