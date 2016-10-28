@@ -30,13 +30,13 @@ lib/ServerConnection.o: src/ServerConnection.cpp src/ServerConnection.hpp
 lib/Serializable.o: src/Serializable.cpp src/Serializable.hpp
 	g++ $(CFLAGS) src/Serializable.cpp -o lib/Serializable.o
 
-lib/UserData.o: src/UserData.cpp src/UserData.hpp src/Serializable.hpp
+lib/UserData.o: src/UserData.cpp src/UserData.hpp src/Serializable.hpp src/CommandData.hpp
 	g++ $(CFLAGS) src/UserData.cpp -o lib/UserData.o
 
-lib/PayData.o: src/PayData.cpp src/PayData.hpp src/Serializable.hpp
+lib/PayData.o: src/PayData.cpp src/PayData.hpp src/Serializable.hpp src/CommandData.hpp
 	g++ $(CFLAGS) src/PayData.cpp -o lib/PayData.o
 
-lib/AddFundsData.o: src/AddFundsData.cpp src/AddFundsData.hpp src/Serializable.hpp
+lib/AddFundsData.o: src/AddFundsData.cpp src/AddFundsData.hpp src/Serializable.hpp src/CommandData.hpp
 	g++ $(CFLAGS) src/AddFundsData.cpp -o lib/AddFundsData.o
 
 # VKALocalServer server

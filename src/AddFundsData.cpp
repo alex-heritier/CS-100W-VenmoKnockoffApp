@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include "AddFundsData.hpp"
+#include "CommandData.hpp"
 
 using namespace std;
 
@@ -14,14 +15,14 @@ AddFundsData::AddFundsData(const unsigned char *raw_data)
 
 void AddFundsData::inflate(const unsigned char *raw_data)
 {
-	fundTag = string(reinterpret_cast<const char *>(raw_data), MAX_FIELD_SIZE);
-        raw_data += MAX_FIELD_SIZE;
+	fundTag = string(reinterpret_cast<const char *>(raw_data), FIELD_SIZE);
+        raw_data += FIELD_SIZE;
         amount = deserialize_int(raw_data);
 }
 
 void AddFundsData::serialize(unsigned char *buf)
 {
-	char padded_field[MAX_FIELD_SIZE];
+	char padded_field[FIELD_SIZE];
         
         // username
         memset(padded_field, 0, sizeof(padded_field));
@@ -33,7 +34,7 @@ void AddFundsData::serialize(unsigned char *buf)
 
 int AddFundsData::size()
 {
-	return MAX_FIELD_SIZE + sizeof(int);
+	return FIELD_SIZE + sizeof(int);
 }
 
 string AddFundsData::getFundTag()

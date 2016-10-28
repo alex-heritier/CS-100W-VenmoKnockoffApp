@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include "PayData.hpp"
+#include "CommandData.hpp"
 
 using namespace std;
 
@@ -14,14 +15,14 @@ PayData::PayData(const unsigned char *raw_data)
 
 void PayData::inflate(const unsigned char *raw_data)
 {
-	username = string(reinterpret_cast<const char *>(raw_data), MAX_FIELD_SIZE);
-        raw_data += MAX_FIELD_SIZE;
+	username = string(reinterpret_cast<const char *>(raw_data), FIELD_SIZE);
+        raw_data += FIELD_SIZE;
 	amount = deserialize_int(raw_data);
 }
 
 void PayData::serialize(unsigned char *buf)
 {
-	char padded_field[MAX_FIELD_SIZE];
+	char padded_field[FIELD_SIZE];
 
         // username
         memset(padded_field, 0, sizeof(padded_field));
@@ -33,7 +34,7 @@ void PayData::serialize(unsigned char *buf)
 
 int PayData::size()
 {
-	return MAX_FIELD_SIZE + sizeof(int);
+	return FIELD_SIZE + sizeof(int);
 }
 
 string PayData::getUsername()

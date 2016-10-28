@@ -3,6 +3,7 @@
 #include <cstring>
 
 #include "UserData.hpp"
+#include "CommandData.hpp"
 
 using namespace std;
 
@@ -15,14 +16,14 @@ UserData::UserData(const unsigned char *raw_data)
 
 void UserData::inflate(const unsigned char *raw_data)
 {
-	username = string(reinterpret_cast<const char *>(raw_data), (size_t)MAX_FIELD_SIZE);
-        raw_data += MAX_FIELD_SIZE;
-	password = string(reinterpret_cast<const char *>(raw_data), MAX_FIELD_SIZE);
+	username = string(reinterpret_cast<const char *>(raw_data), FIELD_SIZE);
+        raw_data += FIELD_SIZE;
+	password = string(reinterpret_cast<const char *>(raw_data), FIELD_SIZE);
 }
 
 void UserData::serialize(unsigned char *buf)
 {
-	char padded_field[MAX_FIELD_SIZE];
+	char padded_field[FIELD_SIZE];
 
 	// username
         memset(padded_field, 0, sizeof(padded_field));
@@ -36,7 +37,7 @@ void UserData::serialize(unsigned char *buf)
 
 int UserData::size()
 {
-	return MAX_FIELD_SIZE + MAX_FIELD_SIZE;
+	return FIELD_SIZE + FIELD_SIZE;
 }
 
 string UserData::getUsername()
