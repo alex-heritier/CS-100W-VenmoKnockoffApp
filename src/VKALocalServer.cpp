@@ -11,7 +11,12 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 
+#include "ServerConnection.hpp"
 #include "CommandData.hpp"
+#include "Serializable.hpp"
+#include "UserData.hpp"
+#include "PayData.hpp"
+#include "AddFundsData.hpp"
 
 using std::string;
 using std::cout;
@@ -21,11 +26,7 @@ using std::endl;
 struct connection {
 	string address;
 	char type;
-	union {
-		struct user_data user;
-		struct pay_data pay;
-		struct add_funds_data add_funds;
-	} payload;
+	Serializable *data;
 };
 
 void setup(string &);
@@ -34,9 +35,12 @@ void captureRequest(struct connection &);
 void processRequest(struct connection &);
 
 static int server_sock;
+static ServerConnection *server;
 
 void setup(string &socket_path)
 {
+	server = new ServerConnection(socket_path, "");
+	/*
 	struct sockaddr_un server_addr;
 
 	// build the server address
@@ -56,19 +60,25 @@ void setup(string &socket_path)
 		perror("Binding socket");
 		exit(-1);
 	}
+	*/
 }
 
 void sendData(string &msg)
 {
+	server->sendData(msg);
+	/*
 	if (send(server_sock, msg.c_str(), msg.length(), 0) < 0) {
 		perror("Sending to socket");
 		exit(-1);
 	}
+	*/
 }
 
 void captureRequest(struct connection &con)
 {
 	unsigned char buf[MAX_PAYLOAD_SIZE];
+	string client_path(server->readData(buf));
+	/*
 	struct sockaddr_un client_addr;
 	
 	// get client payload and address
@@ -80,26 +90,28 @@ void captureRequest(struct connection &con)
 		exit(-1);
 	}
 	cout << "Bytes read: " << bytes_read << endl;
+	cout << "The bytes read were: " << endl;
 	for (int i = 0; i < bytes_read; i++) {
 		cout << (char)buf[i];
 	}
 	cout << endl;
+	*/
 
 	// fill connection
-	con.address.assign(client_addr.sun_path);
+	con.address = client_path;
 	con.type = buf[0];	// 1st byte is the type indicator
 	switch (con.type) {	// fill union based on which type the incoming data is
                 case CommandType::CREATE_USER:
-			deserialize_user_data(&con.payload.user, buf + 1); // skip 1st byte
+			con.data = new UserData(buf + 1);	// skip type byte
                         break;
                 case CommandType::LOGIN:
-			deserialize_user_data(&con.payload.user, buf + 1);
+			con.data = new UserData(buf + 1);   // skip type byte
                         break;
                 case CommandType::PAY:
-			deserialize_pay_data(&con.payload.pay, buf + 1);
+			con.data = new PayData(buf + 1);	// skip type byte
                         break;
                 case CommandType::ADD_FUNDS:
-			deserialize_add_funds_data(&con.payload.add_funds, buf + 1);
+			con.data = new AddFundsData(buf + 1);    // skip type byte
                         break;
                 default:
                         cerr << "Bad command type." << endl;
@@ -109,18 +121,23 @@ void captureRequest(struct connection &con)
 
 void processRequest(struct connection &con)
 {
+	Serializable *data = con.data;
 	switch (con.type) {
 		case CommandType::CREATE_USER:
-			cout << con.address << ": " << con.payload.user.username << endl;
+			cout << con.address << ": " << dynamic_cast<UserData *>(data)->getUsername() << ", ";
+			cout << dynamic_cast<UserData *>(data)->getPassword() << endl;
 			break;
 		case CommandType::LOGIN:
-			cout << con.address << ": " << con.payload.user.username << endl;
+			cout << con.address << ": " << dynamic_cast<UserData *>(data)->getUsername() << ", ";
+			cout << dynamic_cast<UserData *>(data)->getPassword() << endl;
 			break;
 		case CommandType::PAY:
-			cout << con.address << ": " << con.payload.pay.username << endl;
+			cout << con.address << ": " << dynamic_cast<PayData *>(data)->getUsername() << ", ";
+			cout << dynamic_cast<PayData *>(data)->getAmount() << endl;
 			break;
 		case CommandType::ADD_FUNDS:
-			cout << con.address << ": " << con.payload.add_funds.fund_tag << endl;
+			cout << con.address << ": " << dynamic_cast<AddFundsData *>(data)->getFundTag() << ", ";
+			cout << dynamic_cast<AddFundsData *>(data)->getAmount() << endl;
 			break;
 		default:
 			cerr << "Bad command type." << endl;
