@@ -133,7 +133,7 @@ void processRequest(struct connection &con)
 			int amount = dynamic_cast<AddFundsData *>(data)->getAmount();
 			
 			response = addFunds(fundInxex, amount);
-			response += "\nFunds added successfully.";
+			//response += "\nFunds added successfully.";
 			break;
 		default:
 			cerr << "ERROR: corrupted request from client." << endl;
