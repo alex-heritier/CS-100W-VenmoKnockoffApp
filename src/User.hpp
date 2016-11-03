@@ -26,6 +26,7 @@ public:
 	string toString() const;
 	string addFunds(int fundIndex, int amount);
 	int getBalance() const;
+	int getFundSize() const;
 	void deduct(int amount) throw (NotEnoughFundsException);
 	void receive(int amount);
 	void addFundSource(shared_ptr<FundSource>& source);

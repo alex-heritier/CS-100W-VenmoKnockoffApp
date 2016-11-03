@@ -6,6 +6,7 @@
  */
 
 #include "NotEnoughFundsException.hpp"
+#include "helper_funs.hpp"
 
 /**
  * Constructs an exception from the given parameters
@@ -36,4 +37,11 @@ int NotEnoughFundsException::getAmountPulled() const
 int NotEnoughFundsException::getAmountPresent() const
 {
 	return amountPresent;
+}
+
+std::ostream& operator <<(std::ostream& out, const NotEnoughFundsException& ex)
+{
+
+	out << "Present amount " << dollarString(ex.getAmountPresent()) << " is less than pulled amount " << dollarString(ex.getAmountPulled());
+	return out;
 }

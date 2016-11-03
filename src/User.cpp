@@ -81,6 +81,14 @@ int User::getBalance() const
 }
 
 /**
+ * Return the number of fund sources.
+ */
+int User::getFundSize() const
+{
+	return funders.size();
+}
+
+/**
  * Deducts the given amount from the account balance
  * @param amount the cent amount to be removed from the account balance
  */
