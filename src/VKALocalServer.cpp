@@ -91,12 +91,7 @@ void processRequest(struct connection &con)
 			cout << con.address << ": " << dynamic_cast<UserData *>(data)->getUsername() << ", ";
 			cout << dynamic_cast<UserData *>(data)->getPassword() << endl;
 			
-			string newUsername(dynamic_cast<UserData *>(data)->getUsername() );
-			string newPassword(dynamic_cast<UserData *>(data)->getPassword() );
-			
-			
-			bool registerSuccess = registerUser(newUsername, newPassword);
-			if(registerSuccess)
+			if(registerUser(dynamic_cast<UserData *>(data)->getUsername(),dynamic_cast<UserData *>(data)->getPassword() ) )
 				response = "Account created successfully. Welcome to VenmoKnockoffApp!";
 			else
 				response = "The username already exists in the system. Account creation failed";
@@ -104,13 +99,8 @@ void processRequest(struct connection &con)
 		case CommandType::LOGIN:
 			cout << con.address << ": " << dynamic_cast<UserData *>(data)->getUsername() << ", ";
 			cout << dynamic_cast<UserData *>(data)->getPassword() << endl;
-			
-			string inUsername(dynamic_cast<UserData *>(data)->getUsername() );
-			string inPassword(dynamic_cast<UserData *>(data)->getPassword() );
-			
-			bool loginSuccess = loginUser(inUsername, inPassword);
-		
-			if(loginSuccess)
+
+			if(loginUser(dynamic_cast<UserData *>(data)->getUsername() , dynamic_cast<UserData *>(data)->getPassword() ) )
 				response = "Login successful.";
 			else
 				response = "Login failure";
@@ -119,20 +109,13 @@ void processRequest(struct connection &con)
 			cout << con.address << ": " << dynamic_cast<PayData *>(data)->getUsername() << ", ";
 			cout << dynamic_cast<PayData *>(data)->getAmount() << endl;
 			
-			string otherUsername(dynamic_cast<PayData *>(data)->getUsername() );
-			int amount = dynamic_cast<PayData *>(data)->getAmount();
-			
-			response = payTo(otherUsername, amount);
+			response = payTo(dynamic_cast<PayData *>(data)->getUsername(), dynamic_cast<PayData *>(data)->getAmount() );
 			break;
 		case CommandType::ADD_FUNDS:
 			cout << con.address << ": " << dynamic_cast<AddFundsData *>(data)->getFundTag() << ", ";
 			cout << dynamic_cast<AddFundsData *>(data)->getAmount() << endl;
-			
-			string fundtag = dynamic_cast<AddFundsData *>(data)->getFundTag();
-			int fundIndex = atoi(fundtag.c_str() );
-			int amount = dynamic_cast<AddFundsData *>(data)->getAmount();
-			
-			response = addFunds(fundInxex, amount);
+
+			response = addFunds(atoi(dynamic_cast<AddFundsData *>(data)->getFundTag().c_str()) , dynamic_cast<AddFundsData *>(data)->getAmount() );
 			//response += "\nFunds added successfully.";
 			break;
 		default:
@@ -153,7 +136,7 @@ void processRequest(struct connection &con)
 */
 bool registerUser(const string& newUsername, const string& newPassword)
 {
-	if(userMap.find(newUsername) != userMap.end() || username_password.find(newUsername) != userMap.end()) //User already exists
+	if( !(userMap.find(newUsername) == userMap.end() ) || !(username_password.find(newUsername) == username_password.end() ) ) //User already exists
 	{
 		return false;
 	}
@@ -170,15 +153,15 @@ bool registerUser(const string& newUsername, const string& newPassword)
 */
 bool loginUser(const string& inUsername, const string& inPassword)
 {
-	if(userMap.find(inUsername) == userMap.end() || username_password.find(inUsername) == userMap.end() ) //User doesn't exist
+	if(userMap.find(inUsername) == userMap.end() || username_password.find(inUsername) == username_password.end() ) //User doesn't exist
 	{
 		return false;
 	}
-	if(username_password.find(inUsername)->second != inPassword) //wrong password
+	if(username_password[inUsername] != inPassword) //wrong password
 	{
 		return false;
 	}
-	currentUser = userMap.find(inUsername)->second;
+	currentUser = userMap[inUsername];
 	return true;
 }
 
@@ -201,8 +184,9 @@ string payTo(const string& otherUsername, int amount)
 	try
 	{
 		currentUser->deduct(amount);
-		std::shared_ptr<User> oUser = userMap.find(otherUsername)->second;
-		oUser->receive(amount);
+		//std::shared_ptr<User> oUser = userMap.find(otherUsername)->second;
+		//oUser->receive(amount);
+		userMap[otherUsername]->receive(amount);
 	}
 	catch(NotEnoughFundsException& ex)
 	{
@@ -225,7 +209,7 @@ string addFunds(int fundIndex, int amount)
 	{
 		return "No one is logged in.";
 	}
-	if(fundIndex >= currentUser->getFundSize() || fundInxex < 0)
+	if(fundIndex >= currentUser->getFundSize() || fundIndex < 0)
 	{
 		return "Not a valid fund index.";
 	}
