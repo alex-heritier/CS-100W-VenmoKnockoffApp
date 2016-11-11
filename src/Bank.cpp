@@ -11,6 +11,11 @@
 
 using std::stringstream;
 
+Bank::Bank() : FundSource(), accountNum(0)
+{
+
+}
+
 /**
  * Constructs a bank source with the given company and account number.
  * @param company the company to which the bank belongs
@@ -44,3 +49,5 @@ int Bank::getAccountNum() const
 {
 	return accountNum;
 }
+
+

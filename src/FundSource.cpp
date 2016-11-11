@@ -7,6 +7,11 @@
 
 #include "FundSource.hpp"
 
+FundSource::FundSource(): company("")
+{
+
+}
+
 /**
  * Constructs a new FundSource associated with the given company
  * @param company the name of the company

@@ -18,9 +18,16 @@
 #include "PayData.hpp"
 #include "AddFundsData.hpp"
 #include "User.hpp"
+#include "Bank.hpp"
+#include "Card.hpp"
 #include <map>
 #include <sstream>
 #include <cstdlib>
+#include <fstream>
+
+
+#include <boost/serialization/export.hpp>
+#include <boost/serialization/map.hpp>
 
 using std::string;
 using std::cout;
@@ -42,12 +49,16 @@ bool registerUser(const string& newUsername, const string& newPassword);
 bool loginUser(const string& inUsername, const string& inPassword);
 string payTo(const string& otherUsername, int amount);
 string addFunds(int fundIndex, int amount);
+void loadUserMaps();
+void saveUserMaps();
 
 static ServerConnection *server;
 
 std::map<string, string> username_password;
 std::map<string, std::shared_ptr<User> > userMap;
 std::shared_ptr<User> currentUser;
+
+string uMapFile("userMap.txt");
 
 void setup(string &socket_path)
 {
@@ -127,7 +138,8 @@ void processRequest(struct connection &con)
 		response += "\n";
 		response += currentUser->toString();
 	}
-        server->sendData(con.address, response);
+        saveUserMaps();
+		server->sendData(con.address, response);
 }
 
 /**
@@ -217,8 +229,44 @@ string addFunds(int fundIndex, int amount)
 	return receipt;
 }
 
+//Loads user map and password map from a file
+void loadUserMaps()
+{
+	std::ifstream inFile(uMapFile);
+	if(!inFile.is_open())
+	{
+		cout << "Couldn't open file" << endl;
+		std::shared_ptr<User> u1(new User("Default", 100));
+		std::shared_ptr<User> u2(new User("Default2", 100));
+		std::shared_ptr<FundSource> bank1(new Bank("Bank1", 123) );
+		u1->addFundSource(bank1);
+		std::shared_ptr<FundSource> card1(new Card("Yugi", "credit", 2500) );
+		u2->addFundSource(card1);
+		userMap.insert(std::pair<string, std::shared_ptr<User> >(u1->getUsername(),u1) );
+		userMap.insert(std::pair<string, std::shared_ptr<User> >(u2->getUsername(),u2) );
+		username_password.insert(std::pair<string, string> (u1->getUsername(), "qwerty1"));
+		username_password.insert(std::pair<string, string> (u2->getUsername(), "qwerty2"));
+		return;
+	}
+	boost::archive::text_iarchive inArch {inFile};
+	inArch.register_type<Bank>();
+	inArch.register_type<Card>();
+	inArch >> userMap >> username_password;
+}
+
+//Saves user map and password map to a file
+void saveUserMaps()
+{
+	std::ofstream outFile(uMapFile);
+	boost::archive::text_oarchive outArch {outFile};
+	outArch.register_type<Bank>();
+	outArch.register_type<Card>();
+	outArch << userMap << username_password;
+}
+
 int main(int argc, char **argv)
 {
+	loadUserMaps();
 	string socket_path = "/tmp/server_socket";
 	setup(socket_path);
 
@@ -228,6 +276,6 @@ int main(int argc, char **argv)
 		processRequest(con);
 	}
 	delete server;
-
+	saveUserMaps();
 	return 0;
 }

@@ -8,8 +8,12 @@
 #include "User.hpp"
 #include <sstream> //Makes it easy to build a string from several smaller strings and numbers.
 #include "helper_funs.hpp"
+#include <algorithm>
 
+User::User() : username(""), balance(0)
+{
 
+}
 
 /*
  * Constructs a new user with the given username and an empty balance.
@@ -51,10 +55,17 @@ string User::toString() const
 	stringstream info;
 	info << "Username: " << username << "\n";
 	info << "Balance: " << dollarString(balance) << "\n";
+	/*
 	for(unsigned i = 0; i < funders.size(); i++)
 	{
 		info << "[" << i << "]\n" << funders[i]->toString() << "\n";
 	}
+	*/
+	unsigned index = 0;
+	for_each(funders.begin(), funders.end(), [&index, &info] (shared_ptr<FundSource> fund) {
+		info << "[" << index << "]\n" << fund->toString() << "\n";
+		index++;
+	});
 	return info.str();
 }
 
@@ -117,5 +128,6 @@ void User::addFundSource(shared_ptr<FundSource>& source)
 {
 	funders.push_back(source);
 }
+
 
 
