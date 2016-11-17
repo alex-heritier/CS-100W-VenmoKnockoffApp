@@ -11,6 +11,7 @@
 
 using std::stringstream;
 
+namespace vkastd {
 Bank::Bank() : FundSource(), accountNum(0)
 {
 
@@ -50,4 +51,5 @@ int Bank::getAccountNum() const
 	return accountNum;
 }
 
+}
 

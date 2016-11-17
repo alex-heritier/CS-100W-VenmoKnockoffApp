@@ -20,6 +20,8 @@
 
 using namespace std;
 
+namespace vkastd {
+
 //Class that represents a user of the command line payment system
 class User {
 public:
@@ -51,4 +53,5 @@ private:
 
 };
 
+}
 #endif /* USER_HPP_ */

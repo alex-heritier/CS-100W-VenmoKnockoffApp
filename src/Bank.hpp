@@ -12,6 +12,7 @@
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
+namespace vkastd {
 //A fund source specifies a bank
 class Bank: public FundSource {
 public:
@@ -32,5 +33,6 @@ private:
 
 	int accountNum;
 };
+}
 
 #endif /* BANK_HPP_ */

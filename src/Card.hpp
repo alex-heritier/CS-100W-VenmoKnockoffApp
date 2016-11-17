@@ -15,6 +15,8 @@
 /**
  * A fundsource from a credit card, debit card, etc
  */
+namespace vkastd {
+
 class Card: public FundSource {
 public:
 	Card();
@@ -36,5 +38,5 @@ private:
 		ar & cardNum;
 	}
 };
-
+}
 #endif /* CARD_HPP_ */

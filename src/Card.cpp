@@ -10,6 +10,8 @@
 
 using std::stringstream;
 
+namespace vkastd {
+
 Card::Card() : FundSource(), cardType(""), cardNum(0)
 {
 
@@ -59,4 +61,4 @@ string Card::toString() const
 	return info.str();
 }
 
-
+}

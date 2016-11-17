@@ -10,6 +10,8 @@
 #include "helper_funs.hpp"
 #include <algorithm>
 
+namespace vkastd {
+
 User::User() : username(""), balance(0)
 {
 
@@ -129,5 +131,5 @@ void User::addFundSource(shared_ptr<FundSource>& source)
 	funders.push_back(source);
 }
 
-
+}
 

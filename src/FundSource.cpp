@@ -7,6 +7,8 @@
 
 #include "FundSource.hpp"
 
+namespace vkastd {
+
 FundSource::FundSource(): company("")
 {
 
@@ -40,4 +42,6 @@ string FundSource::toString() const
 string FundSource::getCompany() const
 {
 	return company;
+}
+
 }

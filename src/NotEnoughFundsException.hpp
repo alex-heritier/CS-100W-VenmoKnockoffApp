@@ -9,6 +9,7 @@
 #define NOTENOUGHFUNDSEXCEPTION_HPP_
 
 #include <iostream>
+namespace vkastd {
 //Exception to be thrown when the user attempts to deduct more money than they have in their account.
 class NotEnoughFundsException {
 public:
@@ -21,5 +22,7 @@ private:
 	int amountPulled;
 	int amountPresent;
 };
+
+}
 
 #endif /* NOTENOUGHFUNDSEXCEPTION_HPP_ */

@@ -15,6 +15,7 @@
 using std::string;
 
 //Information about a user's source of funds
+namespace vkastd {
 class FundSource {
 public:
 	FundSource();
@@ -31,5 +32,6 @@ private:
 	}
 	string company;
 };
+}
 
 #endif /* FUNDSOURCE_HPP_ */
