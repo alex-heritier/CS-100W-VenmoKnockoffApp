@@ -29,10 +29,10 @@ void processCommand(string &command, VKAClient &app)
 		app.login(params[0], params[1]);
 	} else if (command == payCommand) {
 		processPay(params);
-		app.pay(params[0], std::stoi(params[1]));
+		app.pay(params[0], params[1], std::stoi(params[2]));
 	} else if (command == addFundsCommand) {
 		processAddFunds(params);
-		app.addFunds(params[0], std::stoi(params[1]));
+		app.addFunds(params[0], params[1],  std::stoi(params[2]));
 	} else {
 		throw NonexistentCommandException(command);
 	}
@@ -74,8 +74,13 @@ void processLogin(vector<string> &params)
 
 void processPay(vector<string> &params)
 {
+	string myUsername;
 	string otherUsername;
 	string amount;
+
+	cout << "Who are you?" << endl;
+	cout << "> ";
+	getline(std::cin, myUsername);
 
 	cout << "Who are you paying?" << endl;
 	cout << "> ";
@@ -85,14 +90,20 @@ void processPay(vector<string> &params)
 	cout << "> ";
 	getline(std::cin, amount);
 
+	params.push_back(myUsername);
 	params.push_back(otherUsername);
 	params.push_back(amount);
 }
 
 void processAddFunds(vector<string> &params)
 {
+	string username;
 	string fundTag;
 	string amount;
+	
+	cout << "Who are you?" << endl;
+	cout << "> ";
+	getline(std::cin, username);
 
 	cout << "What fund source are you pulling from?" << endl;
         cout << "> ";
@@ -102,6 +113,7 @@ void processAddFunds(vector<string> &params)
         cout << "> ";
         getline(std::cin, amount);
 
+	params.push_back(username);
         params.push_back(fundTag);
         params.push_back(amount);
 }

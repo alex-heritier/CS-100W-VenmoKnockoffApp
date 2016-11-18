@@ -8,12 +8,13 @@
 
 class PayData : public Serializable {
 public:
-        PayData(std::string &, int);
+        PayData(std::string &, std::string &, int);
         PayData(const unsigned char *); // inflation constructor
         void inflate(const unsigned char *);
         void serialize(unsigned char *);
         int size();
-        std::string getUsername();
+        std::string getSender();
+	std::string getSendee();
         int getAmount();
 private:
         std::string sender;

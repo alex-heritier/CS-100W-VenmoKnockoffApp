@@ -26,6 +26,7 @@ void VKAClient::captureResponses()
 	while (true) {
         	string sender = serverConnection.readData(buf);
 
+		std::lock_guard<std::mutex> guard(responseMutex);	// lock response
 		cout << "Getting reponse from server..." << endl;
 		response = string(reinterpret_cast<char *>(buf));
 	}
@@ -33,6 +34,8 @@ void VKAClient::captureResponses()
 
 bool VKAClient::getResponse(string &res)
 {
+	std::lock_guard<std::mutex> guard(responseMutex);	// lock response
+
 	if (response.empty()) {
 		return false;
 	} else {
@@ -93,10 +96,10 @@ void VKAClient::login(string &username, string &password)
 	user = User(username);
 }
 
-void VKAClient::pay(string &username, int amount)
+void VKAClient::pay(string &sender, string &sendee, int amount)
 {
 	// prepare pay data
-	PayData payData(username, amount);
+	PayData payData(sender, sendee, amount);
 	unsigned char buf[payData.size() + 1]; // extra byte for command type
 	buf[0] = CommandType::PAY;
 	payData.serialize(buf + 1);
@@ -110,10 +113,10 @@ void VKAClient::pay(string &username, int amount)
 	cout << res << endl;
 }
 
-void VKAClient::addFunds(string &fundTag, int amount)
+void VKAClient::addFunds(string &username, string &fundTag, int amount)
 {
 	// prepare add fund data
-        AddFundsData addFundsData(fundTag, amount);
+        AddFundsData addFundsData(username, fundTag, amount);
         unsigned char buf[addFundsData.size() + 1]; // extra byte for command type
         buf[0] = CommandType::ADD_FUNDS;
         addFundsData.serialize(buf + 1);
