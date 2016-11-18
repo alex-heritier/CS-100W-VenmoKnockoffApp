@@ -1,7 +1,0 @@
-22 serialization::archive 14 0 0 2 0 0 0 7 Default 0 1 5 1 0
-0 7 Default 100 0 0 1 1 0 1 0 1 0
-1 1 0
-2 5 Bank1 123 8 Default2 5
-3 8 Default2 100 1 1 1 1 0
-4
-5 4 Yugi 6 credit 2500 0 0 2 0 0 0 7 Default 7 qwerty1 8 Default2 7 qwerty2
