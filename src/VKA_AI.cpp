@@ -18,13 +18,13 @@ void randomAddFunds(VKAClient &app);
 
 void randomizeString(char *buf, int length)
 {
-    int i = 0;
+    	int i = 0;
 	for (i = 0; i < length; i++) {
 		buf[i] = (rand() % 74) + 48;
 	}
-    for (; i < FIELD_SIZE; i++) {
-        buf[i] = '\0';
-    }
+    	for (; i < FIELD_SIZE; i++) {
+        	buf[i] = '\0';
+    	}
 }
 
 int randomInt()
@@ -34,50 +34,69 @@ int randomInt()
 
 void randomCreateUser(VKAClient &app)
 {
+	string username;
+	string password;
+
 	char buf[(randomInt() % (FIELD_SIZE - 6)) + 6];
 	randomizeString(buf, (randomInt() % (FIELD_SIZE - 6)) + 6);
-	string username = string(buf, FIELD_SIZE); // (randomInt() % ((randomInt() % (FIELD_SIZE - 6)) + 6 - 6)) + 6
+	username = string(buf, FIELD_SIZE); // (randomInt() % ((randomInt() % (FIELD_SIZE - 6)) + 6 - 6)) + 6
 	randomizeString(buf, (randomInt() % (FIELD_SIZE - 6)) + 6);
-	string password = string(buf, FIELD_SIZE);
+	password = string(buf, FIELD_SIZE);
 
 	app.createUser(username, password);
 }
 
 void randomLogin(VKAClient &app)
 {
+	string username;
+	string password;
+
         char buf[(randomInt() % (FIELD_SIZE - 6)) + 6];
         randomizeString(buf, (randomInt() % (FIELD_SIZE - 6)) + 6);
-        string username = string(buf, FIELD_SIZE);
+        username = string(buf, FIELD_SIZE);
         randomizeString(buf, (randomInt() % (FIELD_SIZE - 6)) + 6);
-        string password = string(buf, FIELD_SIZE);
+        password = string(buf, FIELD_SIZE);
 
         app.login(username, password);
 }
 
 void randomPay(VKAClient &app)
 {
+	string myUsername;
+	string otherUsername;
+	int amount;
+	
         char buf[(randomInt() % (FIELD_SIZE - 6)) + 6];
         randomizeString(buf, (randomInt() % (FIELD_SIZE - 6)) + 6);
-        string username = string(buf, FIELD_SIZE);
-        int amount = randomInt();
+        myUsername = string(buf, FIELD_SIZE);
+	randomizeString(buf, (randomInt() % (FIELD_SIZE - 6)) + 6);
+        otherUsername = string(buf, FIELD_SIZE);
+        amount = randomInt();
 
-        app.pay(username, amount);
+        app.pay(myUsername, otherUsername, amount);
 }
 
 void randomAddFunds(VKAClient &app)
 {
+	string username;
+	string fundTag;
+	int amount;
+
 	char buf[(randomInt() % (FIELD_SIZE - 6)) + 6];
 	randomizeString(buf, (randomInt() % (FIELD_SIZE - 6)) + 6);
-        string fundTag = string(buf, FIELD_SIZE);
-        int amount = randomInt();
+        username = string(buf, FIELD_SIZE);
+	randomizeString(buf, (randomInt() % (FIELD_SIZE - 6)) + 6);
+        fundTag = string(buf, FIELD_SIZE);
+        amount = randomInt();
 
-        app.addFunds(fundTag, amount);
+        app.addFunds(username, fundTag, amount);
 }
 
 int main(int argc, char **argv)
 {
 	VKAClient app;
 	void (*function_array[4])(VKAClient &);
+
 	function_array[0] = randomCreateUser;
 	function_array[1] = randomLogin;
 	function_array[2] = randomPay;

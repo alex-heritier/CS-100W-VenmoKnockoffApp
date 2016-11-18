@@ -60,8 +60,8 @@ lib/VKALocalServer.o: src/VKALocalServer.cpp src/CommandData.hpp src/Serializabl
 	g++ $(CFLAGS) src/VKALocalServer.cpp -o lib/VKALocalServer.o
 
 # VKA_AI client
-build/ai: lib/VKA_AI.o lib/VKAClient.o lib/User.o lib/NotEnoughFundsException.o lib/helper_funs.o lib/ServerConnection.o lib/Serializable.o lib/UserData.o lib/PayData.o lib/AddFundsData.o
-	g++ $(LFLAGS) lib/VKA_AI.o lib/VKAClient.o lib/User.o lib/NotEnoughFundsException.o lib/helper_funs.o lib/ServerConnection.o lib/Serializable.o lib/UserData.o lib/PayData.o lib/AddFundsData.o -o build/ai
+build/ai: lib/VKA_AI.o lib/VKAClient.o lib/User.o lib/FundSource.o lib/Bank.o lib/Card.o lib/NotEnoughFundsException.o lib/helper_funs.o lib/ServerConnection.o lib/Serializable.o lib/UserData.o lib/PayData.o lib/AddFundsData.o
+	g++ $(LFLAGS) lib/VKA_AI.o lib/VKAClient.o lib/User.o lib/FundSource.o lib/Bank.o lib/Card.o lib/NotEnoughFundsException.o lib/helper_funs.o lib/ServerConnection.o lib/Serializable.o lib/UserData.o lib/PayData.o lib/AddFundsData.o -o build/ai
 
 lib/VKA_AI.o: src/VKA_AI.cpp src/VKAClient.hpp
 	g++ $(CFLAGS) src/VKA_AI.cpp -o lib/VKA_AI.o
