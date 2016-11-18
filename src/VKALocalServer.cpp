@@ -178,7 +178,7 @@ void processRequest(struct connection &con)
 			cerr << "ERROR: corrupted request from client." << endl;
 			exit(-1);
 	}
-	if(curUser != "" && userMap.find(curUser) != userMap.end() )//If a user is logged in, response includes their user info
+	if(curUser != "" && loggedInUsers.find(curUser) != loggedInUsers.end() )//If a user is logged in, response includes their user info
 	{
 		response += "\n";
 		response += userMap[curUser]->toString();
