@@ -7,8 +7,8 @@ LFLAGS = $(FLAGS)
 CFLAGS = $(FLAGS) -c
 
 # VKA_User client
-build/main: lib/VKA_User.o lib/NonexistentCommandException.o lib/VKAClient.o lib/User.o lib/NotEnoughFundsException.o lib/helper_funs.o lib/ServerConnection.o lib/Serializable.o lib/UserData.o lib/PayData.o lib/AddFundsData.o
-	g++ $(LFLAGS) lib/VKA_User.o lib/NonexistentCommandException.o lib/VKAClient.o lib/User.o lib/NotEnoughFundsException.o lib/helper_funs.o lib/ServerConnection.o lib/Serializable.o lib/UserData.o lib/PayData.o  lib/AddFundsData.o -o build/main 
+build/main: lib/VKA_User.o lib/NonexistentCommandException.o lib/VKAClient.o lib/User.o lib/FundSource.o lib/Bank.o lib/Card.o lib/NotEnoughFundsException.o lib/helper_funs.o lib/ServerConnection.o lib/Serializable.o lib/UserData.o lib/PayData.o lib/AddFundsData.o
+	g++ $(LFLAGS) lib/VKA_User.o lib/NonexistentCommandException.o lib/VKAClient.o lib/User.o lib/FundSource.o lib/Bank.o lib/Card.o lib/NotEnoughFundsException.o lib/helper_funs.o lib/ServerConnection.o lib/Serializable.o lib/UserData.o lib/PayData.o  lib/AddFundsData.o -o build/main 
 
 lib/VKA_User.o: src/VKA_User.cpp src/NonexistentCommandException.hpp src/VKAClient.hpp
 	g++ $(CFLAGS) src/VKA_User.cpp -o lib/VKA_User.o
@@ -19,7 +19,7 @@ lib/NonexistentCommandException.o: src/NonexistentCommandException.cpp src/Nonex
 lib/VKAClient.o: src/VKAClient.cpp src/VKAClient.hpp src/User.hpp src/ServerConnection.hpp src/CommandData.hpp src/UserData.hpp src/PayData.hpp src/AddFundsData.hpp
 	g++ $(CFLAGS) src/VKAClient.cpp -o lib/VKAClient.o
 
-lib/User.o: src/User.cpp src/User.hpp src/helper_funs.hpp
+lib/User.o: src/User.cpp src/User.hpp src/helper_funs.hpp src/Card.hpp src/Bank.hpp
 	g++ $(CFLAGS) src/User.cpp -o lib/User.o
 	
 lib/FundSource.o: src/FundSource.cpp src/FundSource.hpp

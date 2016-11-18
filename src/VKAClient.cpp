@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <thread>
+#include <mutex>
 
 #include "VKAClient.hpp"
 #include "CommandData.hpp"

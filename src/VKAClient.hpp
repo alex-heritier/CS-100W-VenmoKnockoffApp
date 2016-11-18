@@ -4,6 +4,7 @@
 
 #include <string>
 #include <thread>
+#include <mutex>
 
 #include "ServerConnection.hpp"
 #include "User.hpp"
