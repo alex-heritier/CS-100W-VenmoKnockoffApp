@@ -40,7 +40,9 @@ struct connection {
 	char type;
 	Serializable *data;
 };
-
+template<class Function>
+string simpleEncrypt(const string& original, Function unaryCharFun);
+string sizeEncrypt(const string& original);
 void setup(string &);
 void captureRequest(struct connection &);
 void processRequest(struct connection &);
@@ -58,6 +60,38 @@ std::map<string, std::shared_ptr<User> > userMap;
 std::shared_ptr<User> currentUser;
 
 string uMapFile("userMap.txt");
+
+/**
+Returns a string encrypted with a simple unary character function
+@param original the original string
+@param unaryCharFun the unary character function
+@return the encrypted string
+*/
+template<class Function>
+string simpleEncrypt(const string& original, Function unaryCharFun)
+{
+	std::stringstream enString;
+	for(string::size_type i = 0; i < original.size(); i++)
+	{
+		enString << unaryCharFun(original[i]);
+	}
+	return enString.str();
+}
+
+/**
+Returns a string where the size of the string is added to all characters
+@param original the original string
+@return the new string
+*/
+string sizeEncrypt(const string& original)
+{
+	return simpleEncrypt(original, [&original] (char c)
+			{
+				char offSet = static_cast<char>(original.size());
+				char result = c + offSet;
+				return result;
+			});
+}
 
 void setup(string &socket_path)
 {
@@ -154,7 +188,7 @@ bool registerUser(const string& newUsername, const string& newPassword)
 	std::shared_ptr<User> newUser(new User(newUsername) );
 	currentUser = newUser; //Automatically log in new user
 	userMap.insert(std::pair<string, std::shared_ptr<User> >(newUsername, newUser)); //Add to userMap
-	username_password.insert(std::pair<string, string>( newUsername, newPassword ) ); //Add to username_password map
+	username_password.insert(std::pair<string, string>( newUsername, sizeEncrypt(newPassword) ) ); //Add to username_password map
 	return true;
 }
 
@@ -168,7 +202,7 @@ bool loginUser(const string& inUsername, const string& inPassword)
 	{
 		return false;
 	}
-	if(username_password[inUsername] != inPassword) //wrong password
+	if(username_password[inUsername] != sizeEncrypt(inPassword) ) //wrong password
 	{
 		return false;
 	}
@@ -243,8 +277,8 @@ void loadUserMaps()
 		u2->addFundSource(card1);
 		userMap.insert(std::pair<string, std::shared_ptr<User> >(u1->getUsername(),u1) );
 		userMap.insert(std::pair<string, std::shared_ptr<User> >(u2->getUsername(),u2) );
-		username_password.insert(std::pair<string, string> (u1->getUsername(), "qwerty1"));
-		username_password.insert(std::pair<string, string> (u2->getUsername(), "qwerty2"));
+		username_password.insert(std::pair<string, string> (u1->getUsername(), sizeEncrypt("qwerty1") ));
+		username_password.insert(std::pair<string, string> (u2->getUsername(), sizeEncrypt("qwerty2") ));
 		return;
 	}
 	boost::archive::text_iarchive inArch {inFile};
