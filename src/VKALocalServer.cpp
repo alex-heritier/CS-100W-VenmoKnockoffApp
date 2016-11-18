@@ -27,8 +27,6 @@ using std::cout;
 using std::cerr;
 using std::endl;
 
-
-
 struct connection {
 	string address;
 	char type;
