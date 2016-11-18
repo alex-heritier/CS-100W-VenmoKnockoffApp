@@ -59,7 +59,7 @@ static ServerConnection *server;
 
 std::map<string, string> username_password;
 std::map<string, std::shared_ptr<User> > userMap;
-std::shared_ptr<User> currentUser;
+//std::shared_ptr<User> currentUser;
 std::set<string> loggedInUsers;
 
 string uMapFile("userMap.txt");
@@ -133,13 +133,17 @@ void processRequest(struct connection &con)
 {
 	Serializable *data = con.data;
 	string response;
+	string curUser = "";
 	switch (con.type) {
 		case CommandType::CREATE_USER:
 			cout << con.address << ": " << dynamic_cast<UserData *>(data)->getUsername() << ", ";
 			cout << dynamic_cast<UserData *>(data)->getPassword() << endl;
 			
 			if(registerUser(dynamic_cast<UserData *>(data)->getUsername(),dynamic_cast<UserData *>(data)->getPassword() ) )
+			{
 				response = "Account created successfully. Welcome to VenmoKnockoffApp!";
+				curUser = dynamic_cast<UserData *>(data)->getUsername();
+			}
 			else
 				response = "The username already exists in the system. Account creation failed";
 			break;
@@ -148,7 +152,10 @@ void processRequest(struct connection &con)
 			cout << dynamic_cast<UserData *>(data)->getPassword() << endl;
 
 			if(loginUser(dynamic_cast<UserData *>(data)->getUsername() , dynamic_cast<UserData *>(data)->getPassword() ) )
+			{
 				response = "Login successful.";
+				curUser = dynamic_cast<UserData *>(data)->getUsername();
+			}
 			else
 				response = "Login failure";
 			break;
@@ -157,6 +164,7 @@ void processRequest(struct connection &con)
 			//cout << dynamic_cast<PayData *>(data)->getAmount() << endl;
 			
 			response = payTo(dynamic_cast<PayData *>(data)->getSender(), dynamic_cast<PayData *>(data)->getSendee(),dynamic_cast<PayData *>(data)->getAmount() );
+			curUser = dynamic_cast<PayData *>(data)->getSender();
 			break;
 		case CommandType::ADD_FUNDS:
 			//cout << con.address << ": " << dynamic_cast<AddFundsData *>(data)->getFundTag() << ", ";
@@ -164,15 +172,16 @@ void processRequest(struct connection &con)
 
 			response = addFunds(dynamic_cast<AddFundsData *>(data)->getUsername(), atoi(dynamic_cast<AddFundsData *>(data)->getFundTag().c_str()) , dynamic_cast<AddFundsData *>(data)->getAmount() );
 			//response += "\nFunds added successfully.";
+			curUser = dynamic_cast<AddFundsData *>(data)->getUsername();
 			break;
 		default:
 			cerr << "ERROR: corrupted request from client." << endl;
 			exit(-1);
 	}
-	if(currentUser)//If a user is logged in, response includes their user info
+	if(curUser != "" && userMap.find(curUser) != userMap.end() )//If a user is logged in, response includes their user info
 	{
 		response += "\n";
-		response += currentUser->toString();
+		response += userMap[curUser]->toString();
 	}
         saveUserMaps();
 		server->sendData(con.address, response);
