@@ -21,9 +21,11 @@
 #include "Bank.hpp"
 #include "Card.hpp"
 #include <map>
+#include <set>
 #include <sstream>
 #include <cstdlib>
 #include <fstream>
+#include <algorithm>
 
 
 #include <boost/serialization/export.hpp>
@@ -48,8 +50,8 @@ void captureRequest(struct connection &);
 void processRequest(struct connection &);
 bool registerUser(const string& newUsername, const string& newPassword);
 bool loginUser(const string& inUsername, const string& inPassword);
-string payTo(const string& otherUsername, int amount);
-string addFunds(int fundIndex, int amount);
+string payTo(const string& sender, const string& receiver, int amount);
+string addFunds(const string& username, int fundIndex, int amount);
 void loadUserMaps();
 void saveUserMaps();
 
@@ -58,6 +60,7 @@ static ServerConnection *server;
 std::map<string, string> username_password;
 std::map<string, std::shared_ptr<User> > userMap;
 std::shared_ptr<User> currentUser;
+std::set<string> loggedInUsers;
 
 string uMapFile("userMap.txt");
 
@@ -150,16 +153,16 @@ void processRequest(struct connection &con)
 				response = "Login failure";
 			break;
 		case CommandType::PAY:
-			cout << con.address << ": " << dynamic_cast<PayData *>(data)->getUsername() << ", ";
-			cout << dynamic_cast<PayData *>(data)->getAmount() << endl;
+			//cout << con.address << ": " << dynamic_cast<PayData *>(data)->getUsername() << ", ";
+			//cout << dynamic_cast<PayData *>(data)->getAmount() << endl;
 			
-			response = payTo(dynamic_cast<PayData *>(data)->getUsername(), dynamic_cast<PayData *>(data)->getAmount() );
+			response = payTo(dynamic_cast<PayData *>(data)->getSender(), dynamic_cast<PayData *>(data)->getSendee(),dynamic_cast<PayData *>(data)->getAmount() );
 			break;
 		case CommandType::ADD_FUNDS:
-			cout << con.address << ": " << dynamic_cast<AddFundsData *>(data)->getFundTag() << ", ";
-			cout << dynamic_cast<AddFundsData *>(data)->getAmount() << endl;
+			//cout << con.address << ": " << dynamic_cast<AddFundsData *>(data)->getFundTag() << ", ";
+			//cout << dynamic_cast<AddFundsData *>(data)->getAmount() << endl;
 
-			response = addFunds(atoi(dynamic_cast<AddFundsData *>(data)->getFundTag().c_str()) , dynamic_cast<AddFundsData *>(data)->getAmount() );
+			response = addFunds(dynamic_cast<AddFundsData *>(data)->getUsername(), atoi(dynamic_cast<AddFundsData *>(data)->getFundTag().c_str()) , dynamic_cast<AddFundsData *>(data)->getAmount() );
 			//response += "\nFunds added successfully.";
 			break;
 		default:
@@ -186,7 +189,7 @@ bool registerUser(const string& newUsername, const string& newPassword)
 		return false;
 	}
 	std::shared_ptr<User> newUser(new User(newUsername) );
-	currentUser = newUser; //Automatically log in new user
+	loggedInUsers.insert(newUsername); //Automatically log in new user
 	userMap.insert(std::pair<string, std::shared_ptr<User> >(newUsername, newUser)); //Add to userMap
 	username_password.insert(std::pair<string, string>( newUsername, sizeEncrypt(newPassword) ) ); //Add to username_password map
 	return true;
@@ -206,7 +209,7 @@ bool loginUser(const string& inUsername, const string& inPassword)
 	{
 		return false;
 	}
-	currentUser = userMap[inUsername];
+	loggedInUsers.insert(inUsername);
 	return true;
 }
 
@@ -215,23 +218,23 @@ bool loginUser(const string& inUsername, const string& inPassword)
 * @param amount the amount to be transferred in cents
 * @return a string containing a success message, or a message on failure
 */
-string payTo(const string& otherUsername, int amount)
+string payTo(const string& sender, const string& receiver, int amount)
 {
-	if(userMap.find(otherUsername) == userMap.end() ) //other user doesn't exist
+	if(userMap.find(receiver) == userMap.end() ) //other user doesn't exist
 	{
 		return "Other user doesn't exist";
 	}
-	if(!currentUser) //no one is logged in
+	if(std::find(loggedInUsers.begin(), loggedInUsers.end(), sender) == loggedInUsers.end()) //no one is logged in
 	{
-		return "No one is logged in";
+		return "Not logged in";
 	}
 	
 	try
 	{
-		currentUser->deduct(amount);
+		userMap[sender]->deduct(amount);
 		//std::shared_ptr<User> oUser = userMap.find(otherUsername)->second;
 		//oUser->receive(amount);
-		userMap[otherUsername]->receive(amount);
+		userMap[receiver]->receive(amount);
 	}
 	catch(NotEnoughFundsException& ex)
 	{
@@ -248,17 +251,17 @@ string payTo(const string& otherUsername, int amount)
 * @param amount the amount to be pulled from the fund source in cents
 * @return a string containing the receipt, or a message on failure
 */
-string addFunds(int fundIndex, int amount)
+string addFunds(const string& username, int fundIndex, int amount)
 {
-	if(!currentUser) //no one is logged in
+	if(std::find(loggedInUsers.begin(), loggedInUsers.end(), username) == loggedInUsers.end()) //no one is logged in
 	{
-		return "No one is logged in.";
+		return "Not is logged in.";
 	}
-	if(fundIndex >= currentUser->getFundSize() || fundIndex < 0)
+	if(fundIndex >= userMap[username]->getFundSize() || fundIndex < 0)
 	{
 		return "Not a valid fund index.";
 	}
-	string receipt = currentUser->addFunds(fundIndex, amount);
+	string receipt = userMap[username]->addFunds(fundIndex, amount);
 	return receipt;
 }
 

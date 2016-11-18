@@ -2,7 +2,6 @@
 #include <iostream>
 #include <string>
 #include <thread>
-
 #include "VKAClient.hpp"
 #include "CommandData.hpp"
 #include "UserData.hpp"
