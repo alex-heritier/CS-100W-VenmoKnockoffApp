@@ -1,4 +1,7 @@
-FLAGS = -g -Wall -std=c++11 -stdlib=libc++
+FLAGS = -g -Wall -std=c++11
+ifeq ($(shell uname),Darwin)
+	FLAGS += -stdlib=libc++
+endif
 LFLAGS = $(FLAGS)
 CFLAGS = $(FLAGS) -c
 
@@ -17,6 +20,15 @@ lib/VKAClient.o: src/VKAClient.cpp src/VKAClient.hpp src/User.hpp src/ServerConn
 
 lib/User.o: src/User.cpp src/User.hpp src/helper_funs.hpp
 	g++ $(CFLAGS) src/User.cpp -o lib/User.o
+	
+lib/FundSource.o: src/FundSource.cpp src/FundSource.hpp
+	g++ $(CFLAGS) src/FundSource.cpp -o lib/FundSource.o
+	
+lib/Bank.o: src/Bank.cpp src/Bank.hpp
+	g++ $(CFLAGS) src/Bank.cpp -o lib/Bank.o
+	
+lib/Card.o: src/Card.cpp src/Card.hpp
+	g++ $(CFLAGS) src/Card.cpp -o lib/Card.o
 
 lib/NotEnoughFundsException.o: src/NotEnoughFundsException.cpp src/NotEnoughFundsException.hpp
 	g++ $(CFLAGS) src/NotEnoughFundsException.cpp -o lib/NotEnoughFundsException.o
@@ -40,10 +52,10 @@ lib/AddFundsData.o: src/AddFundsData.cpp src/AddFundsData.hpp src/Serializable.h
 	g++ $(CFLAGS) src/AddFundsData.cpp -o lib/AddFundsData.o
 
 # VKALocalServer server
-build/server: lib/VKALocalServer.o lib/Serializable.o lib/UserData.o lib/PayData.o lib/AddFundsData.o lib/ServerConnection.o
-	g++ $(LFLAGS) lib/VKALocalServer.o lib/Serializable.o lib/UserData.o lib/PayData.o lib/AddFundsData.o lib/ServerConnection.o -o build/server
+build/server: lib/VKALocalServer.o lib/Serializable.o lib/UserData.o lib/PayData.o lib/AddFundsData.o lib/ServerConnection.o lib/User.o lib/FundSource.o lib/Bank.o lib/Card.o lib/NotEnoughFundsException.o lib/helper_funs.o
+	g++ $(LFLAGS) lib/VKALocalServer.o lib/Serializable.o lib/UserData.o lib/PayData.o lib/AddFundsData.o lib/ServerConnection.o lib/User.o lib/FundSource.o lib/Bank.o lib/Card.o lib/NotEnoughFundsException.o lib/helper_funs.o -o build/server -lboost_serialization
 
-lib/VKALocalServer.o: src/VKALocalServer.cpp src/CommandData.hpp src/Serializable.hpp src/UserData.hpp src/PayData.hpp src/AddFundsData.hpp src/ServerConnection.hpp
+lib/VKALocalServer.o: src/VKALocalServer.cpp src/CommandData.hpp src/Serializable.hpp src/UserData.hpp src/PayData.hpp src/AddFundsData.hpp src/ServerConnection.hpp src/User.hpp src/NotEnoughFundsException.hpp src/helper_funs.hpp
 	g++ $(CFLAGS) src/VKALocalServer.cpp -o lib/VKALocalServer.o
 
 # VKA_AI client

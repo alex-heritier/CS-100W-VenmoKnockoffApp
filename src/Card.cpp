@@ -10,6 +10,13 @@
 
 using std::stringstream;
 
+namespace vkastd {
+
+Card::Card() : FundSource(), cardType(""), cardNum(0)
+{
+
+}
+
 /**
  * Constructs a card source from the given company name, card type, and card number
  * @param company the company that issued the card
@@ -52,4 +59,6 @@ string Card::toString() const
 	info << "Card type: " << cardType << "\n";
 	info << "Card number: " << cardNum;
 	return info.str();
+}
+
 }

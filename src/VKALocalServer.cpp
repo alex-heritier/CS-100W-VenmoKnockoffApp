@@ -18,14 +18,22 @@
 #include "PayData.hpp"
 #include "AddFundsData.hpp"
 #include "User.hpp"
+#include "Bank.hpp"
+#include "Card.hpp"
 #include <map>
 #include <sstream>
 #include <cstdlib>
+#include <fstream>
+
+
+#include <boost/serialization/export.hpp>
+#include <boost/serialization/map.hpp>
 
 using std::string;
 using std::cout;
 using std::cerr;
 using std::endl;
+using namespace vkastd;
 
 struct connection {
 	string address;
@@ -40,12 +48,16 @@ bool registerUser(const string& newUsername, const string& newPassword);
 bool loginUser(const string& inUsername, const string& inPassword);
 string payTo(const string& otherUsername, int amount);
 string addFunds(int fundIndex, int amount);
+void loadUserMaps();
+void saveUserMaps();
 
 static ServerConnection *server;
 
 std::map<string, string> username_password;
 std::map<string, std::shared_ptr<User> > userMap;
 std::shared_ptr<User> currentUser;
+
+string uMapFile("userMap.txt");
 
 void setup(string &socket_path)
 {
@@ -89,12 +101,7 @@ void processRequest(struct connection &con)
 			cout << con.address << ": " << dynamic_cast<UserData *>(data)->getUsername() << ", ";
 			cout << dynamic_cast<UserData *>(data)->getPassword() << endl;
 			
-			string newUsername(dynamic_cast<UserData *>(data)->getUsername() );
-			string newPassword(dynamic_cast<UserData *>(data)->getPassword() );
-			
-			
-			bool registerSuccess = registerUser(newUsername, newPassword);
-			if(registerSuccess)
+			if(registerUser(dynamic_cast<UserData *>(data)->getUsername(),dynamic_cast<UserData *>(data)->getPassword() ) )
 				response = "Account created successfully. Welcome to VenmoKnockoffApp!";
 			else
 				response = "The username already exists in the system. Account creation failed";
@@ -102,13 +109,8 @@ void processRequest(struct connection &con)
 		case CommandType::LOGIN:
 			cout << con.address << ": " << dynamic_cast<UserData *>(data)->getUsername() << ", ";
 			cout << dynamic_cast<UserData *>(data)->getPassword() << endl;
-			
-			string inUsername(dynamic_cast<UserData *>(data)->getUsername() );
-			string inPassword(dynamic_cast<UserData *>(data)->getPassword() );
-			
-			bool loginSuccess = loginUser(inUsername, inPassword);
-		
-			if(loginSuccess)
+
+			if(loginUser(dynamic_cast<UserData *>(data)->getUsername() , dynamic_cast<UserData *>(data)->getPassword() ) )
 				response = "Login successful.";
 			else
 				response = "Login failure";
@@ -117,20 +119,13 @@ void processRequest(struct connection &con)
 			cout << con.address << ": " << dynamic_cast<PayData *>(data)->getUsername() << ", ";
 			cout << dynamic_cast<PayData *>(data)->getAmount() << endl;
 			
-			string otherUsername(dynamic_cast<PayData *>(data)->getUsername() );
-			int amount = dynamic_cast<PayData *>(data)->getAmount();
-			
-			response = payTo(otherUsername, amount);
+			response = payTo(dynamic_cast<PayData *>(data)->getUsername(), dynamic_cast<PayData *>(data)->getAmount() );
 			break;
 		case CommandType::ADD_FUNDS:
 			cout << con.address << ": " << dynamic_cast<AddFundsData *>(data)->getFundTag() << ", ";
 			cout << dynamic_cast<AddFundsData *>(data)->getAmount() << endl;
-			
-			string fundtag = dynamic_cast<AddFundsData *>(data)->getFundTag();
-			int fundIndex = atoi(fundtag.c_str() );
-			int amount = dynamic_cast<AddFundsData *>(data)->getAmount();
-			
-			response = addFunds(fundInxex, amount);
+
+			response = addFunds(atoi(dynamic_cast<AddFundsData *>(data)->getFundTag().c_str()) , dynamic_cast<AddFundsData *>(data)->getAmount() );
 			//response += "\nFunds added successfully.";
 			break;
 		default:
@@ -142,7 +137,8 @@ void processRequest(struct connection &con)
 		response += "\n";
 		response += currentUser->toString();
 	}
-        server->sendData(con.address, response);
+        saveUserMaps();
+		server->sendData(con.address, response);
 }
 
 /**
@@ -151,7 +147,7 @@ void processRequest(struct connection &con)
 */
 bool registerUser(const string& newUsername, const string& newPassword)
 {
-	if(userMap.find(newUsername) != userMap.end() || username_password.find(newUsername) != userMap.end()) //User already exists
+	if( !(userMap.find(newUsername) == userMap.end() ) || !(username_password.find(newUsername) == username_password.end() ) ) //User already exists
 	{
 		return false;
 	}
@@ -168,15 +164,15 @@ bool registerUser(const string& newUsername, const string& newPassword)
 */
 bool loginUser(const string& inUsername, const string& inPassword)
 {
-	if(userMap.find(inUsername) == userMap.end() || username_password.find(inUsername) == userMap.end() ) //User doesn't exist
+	if(userMap.find(inUsername) == userMap.end() || username_password.find(inUsername) == username_password.end() ) //User doesn't exist
 	{
 		return false;
 	}
-	if(username_password.find(inUsername)->second != inPassword) //wrong password
+	if(username_password[inUsername] != inPassword) //wrong password
 	{
 		return false;
 	}
-	currentUser = userMap.find(inUsername)->second;
+	currentUser = userMap[inUsername];
 	return true;
 }
 
@@ -199,8 +195,9 @@ string payTo(const string& otherUsername, int amount)
 	try
 	{
 		currentUser->deduct(amount);
-		std::shared_ptr<User> oUser = userMap.find(otherUsername)->second;
-		oUser->receive(amount);
+		//std::shared_ptr<User> oUser = userMap.find(otherUsername)->second;
+		//oUser->receive(amount);
+		userMap[otherUsername]->receive(amount);
 	}
 	catch(NotEnoughFundsException& ex)
 	{
@@ -223,7 +220,7 @@ string addFunds(int fundIndex, int amount)
 	{
 		return "No one is logged in.";
 	}
-	if(fundIndex >= currentUser->getFundSize() || fundInxex < 0)
+	if(fundIndex >= currentUser->getFundSize() || fundIndex < 0)
 	{
 		return "Not a valid fund index.";
 	}
@@ -231,8 +228,44 @@ string addFunds(int fundIndex, int amount)
 	return receipt;
 }
 
+//Loads user map and password map from a file
+void loadUserMaps()
+{
+	std::ifstream inFile(uMapFile);
+	if(!inFile.is_open())
+	{
+		cout << "Couldn't open file" << endl;
+		std::shared_ptr<User> u1(new User("Default", 100));
+		std::shared_ptr<User> u2(new User("Default2", 100));
+		std::shared_ptr<FundSource> bank1(new Bank("Bank1", 123) );
+		u1->addFundSource(bank1);
+		std::shared_ptr<FundSource> card1(new Card("Yugi", "credit", 2500) );
+		u2->addFundSource(card1);
+		userMap.insert(std::pair<string, std::shared_ptr<User> >(u1->getUsername(),u1) );
+		userMap.insert(std::pair<string, std::shared_ptr<User> >(u2->getUsername(),u2) );
+		username_password.insert(std::pair<string, string> (u1->getUsername(), "qwerty1"));
+		username_password.insert(std::pair<string, string> (u2->getUsername(), "qwerty2"));
+		return;
+	}
+	boost::archive::text_iarchive inArch {inFile};
+	inArch.register_type<Bank>();
+	inArch.register_type<Card>();
+	inArch >> userMap >> username_password;
+}
+
+//Saves user map and password map to a file
+void saveUserMaps()
+{
+	std::ofstream outFile(uMapFile);
+	boost::archive::text_oarchive outArch {outFile};
+	outArch.register_type<Bank>();
+	outArch.register_type<Card>();
+	outArch << userMap << username_password;
+}
+
 int main(int argc, char **argv)
 {
+	loadUserMaps();
 	string socket_path = "/tmp/server_socket";
 	setup(socket_path);
 
@@ -242,6 +275,6 @@ int main(int argc, char **argv)
 		processRequest(con);
 	}
 	delete server;
-
+	saveUserMaps();
 	return 0;
 }

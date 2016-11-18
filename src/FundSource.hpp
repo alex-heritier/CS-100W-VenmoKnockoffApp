@@ -9,18 +9,29 @@
 #define FUNDSOURCE_HPP_
 
 #include <string>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 
 using std::string;
 
 //Information about a user's source of funds
+namespace vkastd {
 class FundSource {
 public:
+	FundSource();
 	FundSource(string company);
 	virtual ~FundSource();
 	virtual string toString() const;
 	string getCompany() const;
 private:
+	friend class boost::serialization::access;
+	template<typename Archive>
+	void serialize(Archive &ar, const unsigned int version)
+	{
+		ar & company;
+	}
 	string company;
 };
+}
 
 #endif /* FUNDSOURCE_HPP_ */

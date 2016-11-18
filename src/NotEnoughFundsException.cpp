@@ -8,6 +8,8 @@
 #include "NotEnoughFundsException.hpp"
 #include "helper_funs.hpp"
 
+
+namespace vkastd {
 /**
  * Constructs an exception from the given parameters
  * @param amountPulled the amount that the user attempted to deduct in cents
@@ -44,4 +46,6 @@ std::ostream& operator <<(std::ostream& out, const NotEnoughFundsException& ex)
 
 	out << "Present amount " << dollarString(ex.getAmountPresent()) << " is less than pulled amount " << dollarString(ex.getAmountPulled());
 	return out;
+}
+
 }

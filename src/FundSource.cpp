@@ -7,6 +7,13 @@
 
 #include "FundSource.hpp"
 
+namespace vkastd {
+
+FundSource::FundSource(): company("")
+{
+
+}
+
 /**
  * Constructs a new FundSource associated with the given company
  * @param company the name of the company
@@ -35,4 +42,6 @@ string FundSource::toString() const
 string FundSource::getCompany() const
 {
 	return company;
+}
+
 }

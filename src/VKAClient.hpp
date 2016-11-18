@@ -8,6 +8,7 @@
 #include "ServerConnection.hpp"
 #include "User.hpp"
 
+using namespace vkastd;
 class VKAClient {
 public:
 	VKAClient();

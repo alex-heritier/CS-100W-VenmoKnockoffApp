@@ -1,6 +1,6 @@
 
 #include <iostream>
-
+#include <cstring>
 #include "PayData.hpp"
 #include "CommandData.hpp"
 
