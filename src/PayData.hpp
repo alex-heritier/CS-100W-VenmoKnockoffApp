@@ -16,7 +16,8 @@ public:
         std::string getUsername();
         int getAmount();
 private:
-        std::string username;
+        std::string sender;
+	std::string sendee;
 	int amount;
 };
 

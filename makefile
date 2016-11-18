@@ -1,13 +1,14 @@
-FLAGS = -g -Wall -std=c++11
+FLAGS = -g -Wall -std=c++11 
 ifeq ($(shell uname),Darwin)
-	FLAGS += -stdlib=libc++
+	FLAGS += -stdlib=libc++ -I/Users/Alex/School/17th\ Grade/sem1/CS\ 144/project/lib/boost_1_62_0
+	FLAGS += -L/usr/local/lib
 endif
 LFLAGS = $(FLAGS)
 CFLAGS = $(FLAGS) -c
 
 # VKA_User client
 build/main: lib/VKA_User.o lib/NonexistentCommandException.o lib/VKAClient.o lib/User.o lib/NotEnoughFundsException.o lib/helper_funs.o lib/ServerConnection.o lib/Serializable.o lib/UserData.o lib/PayData.o lib/AddFundsData.o
-	g++ $(LFLAGS) lib/VKA_User.o lib/NonexistentCommandException.o lib/VKAClient.o lib/User.o lib/NotEnoughFundsException.o lib/helper_funs.o lib/ServerConnection.o lib/Serializable.o lib/UserData.o lib/PayData.o  lib/AddFundsData.o -o build/main
+	g++ $(LFLAGS) lib/VKA_User.o lib/NonexistentCommandException.o lib/VKAClient.o lib/User.o lib/NotEnoughFundsException.o lib/helper_funs.o lib/ServerConnection.o lib/Serializable.o lib/UserData.o lib/PayData.o  lib/AddFundsData.o -o build/main 
 
 lib/VKA_User.o: src/VKA_User.cpp src/NonexistentCommandException.hpp src/VKAClient.hpp
 	g++ $(CFLAGS) src/VKA_User.cpp -o lib/VKA_User.o
