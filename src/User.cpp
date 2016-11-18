@@ -6,8 +6,6 @@
  */
 
 #include "User.hpp"
-#include "Card.hpp"
-#include "Bank.hpp"
 #include <sstream> //Makes it easy to build a string from several smaller strings and numbers.
 #include "helper_funs.hpp"
 #include <algorithm>

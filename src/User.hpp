@@ -12,6 +12,8 @@
 #include <vector>
 #include <memory>
 #include "FundSource.hpp"
+#include "Card.hpp"
+#include "Bank.hpp"
 #include "NotEnoughFundsException.hpp"
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
