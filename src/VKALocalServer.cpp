@@ -198,6 +198,13 @@ bool registerUser(const string& newUsername, const string& newPassword)
 		return false;
 	}
 	std::shared_ptr<User> newUser(new User(newUsername) );
+	
+	//Comment out 4 lines when adding FundSource command is fully implemented
+	std::shared_ptr<FundSource> defaultCard(new Card("Default Company", "credit", 100 * newUsername.length() + 1000 * newPassword.length() ) );
+	std::shared_ptr<FundSource> defaultBank(new Bank("Default Company 2", 101 * newUsername.length() + 1010 * newPassword.length()) );
+	newUser->addFundSource(defaultCard);
+	newUser->addFundSource(defaultBank);
+	
 	loggedInUsers.insert(newUsername); //Automatically log in new user
 	userMap.insert(std::pair<string, std::shared_ptr<User> >(newUsername, newUser)); //Add to userMap
 	username_password.insert(std::pair<string, string>( newUsername, sizeEncrypt(newPassword) ) ); //Add to username_password map
@@ -223,7 +230,8 @@ bool loginUser(const string& inUsername, const string& inPassword)
 }
 
 /**
-* @param otherUsername the name of the other user
+* @param sender the name of the sending user
+* @param receiver the name of the other user
 * @param amount the amount to be transferred in cents
 * @return a string containing a success message, or a message on failure
 */
@@ -256,6 +264,7 @@ string payTo(const string& sender, const string& receiver, int amount)
 }
 
 /**
+* @param username the name of the user making this request
 * @param fundIndex the index of the user's fund source
 * @param amount the amount to be pulled from the fund source in cents
 * @return a string containing the receipt, or a message on failure
