@@ -56,10 +56,10 @@ lib/AddFundSourceData.o: src/AddFundSourceData.cpp src/AddFundSourceData.hpp src
 	g++ $(CFLAGS) src/AddFundSourceData.cpp -o lib/AddFundSourceData.o
 
 # VKALocalServer server
-build/server: lib/VKALocalServer.o lib/Serializable.o lib/UserData.o lib/PayData.o lib/AddFundsData.o lib/AddFundSourceData.o lib/ServerConnection.o lib/User.o lib/FundSource.o lib/Bank.o lib/Card.o lib/NotEnoughFundsException.o lib/helper_funs.o
-	g++ $(LFLAGS) lib/VKALocalServer.o lib/Serializable.o lib/UserData.o lib/PayData.o lib/AddFundsData.o lib/AddFundSourceData.o lib/ServerConnection.o lib/User.o lib/FundSource.o lib/Bank.o lib/Card.o lib/NotEnoughFundsException.o lib/helper_funs.o -o build/server -lboost_serialization
+build/server: lib/VKALocalServer.o lib/Serializable.o lib/UserData.o lib/PayData.o lib/AddFundsData.o lib/AddFundSourceData.o lib/ServerConnection.o lib/User.o lib/FundSource.o lib/Bank.o lib/Card.o lib/NotEnoughFundsException.o lib/helper_funs.o lib/NonexistentCommandException.o
+	g++ $(LFLAGS) lib/VKALocalServer.o lib/Serializable.o lib/UserData.o lib/PayData.o lib/AddFundsData.o lib/AddFundSourceData.o lib/ServerConnection.o lib/User.o lib/FundSource.o lib/Bank.o lib/Card.o lib/NotEnoughFundsException.o lib/helper_funs.o lib/NonexistentCommandException.o -o build/server -lboost_serialization
 
-lib/VKALocalServer.o: src/VKALocalServer.cpp src/CommandData.hpp src/Serializable.hpp src/UserData.hpp src/PayData.hpp src/AddFundsData.hpp src/AddFundSourceData.hpp src/ServerConnection.hpp src/User.hpp src/NotEnoughFundsException.hpp src/helper_funs.hpp
+lib/VKALocalServer.o: src/VKALocalServer.cpp src/CommandData.hpp src/Serializable.hpp src/UserData.hpp src/PayData.hpp src/AddFundsData.hpp src/AddFundSourceData.hpp src/ServerConnection.hpp src/User.hpp src/NotEnoughFundsException.hpp src/helper_funs.hpp src/NonexistentCommandException.hpp
 	g++ $(CFLAGS) src/VKALocalServer.cpp -o lib/VKALocalServer.o
 
 # VKA_AI client

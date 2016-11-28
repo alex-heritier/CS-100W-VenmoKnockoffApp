@@ -18,6 +18,7 @@
 #include "PayData.hpp"
 #include "AddFundsData.hpp"
 #include "AddFundSourceData.hpp"
+#include "NonexistentCommandException.hpp"
 #include "User.hpp"
 #include "Bank.hpp"
 #include "Card.hpp"
@@ -47,8 +48,8 @@ template<class Function>
 string simpleEncrypt(const string& original, Function unaryCharFun);
 string sizeEncrypt(const string& original);
 void setup(string &);
-void captureRequest(struct connection &);
-void processRequest(struct connection &);
+void captureRequest(struct connection &) throw (NonexistentCommandException);
+void processRequest(struct connection &) throw (NonexistentCommandException);
 bool registerUser(const string& newUsername, const string& newPassword);
 bool loginUser(const string& inUsername, const string& inPassword);
 string payTo(const string& sender, const string& receiver, int amount);
@@ -104,11 +105,11 @@ void setup(string &socket_path)
 	server->setDebug(true);
 }
 
-void captureRequest(struct connection &con)
+void captureRequest(struct connection &con) throw (NonexistentCommandException)
 {
 	unsigned char buf[MAX_PAYLOAD_SIZE];
 	string client_path = server->readData(buf);
-
+	string contype = "";
 	// fill connection
 	con.address = client_path;
 	con.type = buf[0];	// set type byte
@@ -126,16 +127,19 @@ void captureRequest(struct connection &con)
 			con.data = new AddFundsData(buf + 1);    // skip type byte
                         break;
                 default:
-                        cerr << "Bad command type." << endl;
-                        exit(-1);
+                        //cerr << "Bad command type." << endl;
+                        //exit(-1);
+						contype += con.type;
+						throw NonexistentCommandException(contype);
         }	
 }
 
-void processRequest(struct connection &con)
+void processRequest(struct connection &con) throw (NonexistentCommandException)
 {
 	Serializable *data = con.data;
 	string response;
 	string curUser = "";
+	string contype = "";
 	switch (con.type) {
 		case CommandType::CREATE_USER:
 			cout << con.address << ": " << dynamic_cast<UserData *>(data)->getUsername() << ", ";
@@ -181,8 +185,10 @@ void processRequest(struct connection &con)
 			curUser = dynamic_cast<AddFundSourceData *>(data)->getUsername();
 			break;
 		default:
-			cerr << "ERROR: corrupted request from client." << endl;
-			exit(-1);
+			//cerr << "ERROR: corrupted request from client." << endl;
+			//exit(-1);
+			contype += con.type;
+			throw NonexistentCommandException(contype);
 	}
 	if(curUser != "" && loggedInUsers.find(curUser) != loggedInUsers.end() )//If a user is logged in, response includes their user info
 	{
@@ -353,8 +359,19 @@ int main(int argc, char **argv)
 
 	struct connection con;
 	while (true) {
-		captureRequest(con);
-		processRequest(con);
+		try{
+			captureRequest(con);
+			processRequest(con);
+		}
+		catch(NonexistentCommandException& ex)
+		{
+			std::stringstream msg;
+			msg << ex;
+			msg << "\nPlease try a valid command\n";
+			string errMessage = msg.str();
+			server->sendData(con.address, errMessage);
+		}
+		
 	}
 	delete server;
 	saveUserMaps();
