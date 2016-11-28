@@ -17,6 +17,7 @@
 #include "UserData.hpp"
 #include "PayData.hpp"
 #include "AddFundsData.hpp"
+#include "AddFundSourceData.hpp"
 #include "User.hpp"
 #include "Bank.hpp"
 #include "Card.hpp"
@@ -52,6 +53,7 @@ bool registerUser(const string& newUsername, const string& newPassword);
 bool loginUser(const string& inUsername, const string& inPassword);
 string payTo(const string& sender, const string& receiver, int amount);
 string addFunds(const string& username, int fundIndex, int amount);
+string addFundSource(const string &, const string &, const string &, const string &);
 void loadUserMaps();
 void saveUserMaps();
 
@@ -174,6 +176,10 @@ void processRequest(struct connection &con)
 			//response += "\nFunds added successfully.";
 			curUser = dynamic_cast<AddFundsData *>(data)->getUsername();
 			break;
+		case CommandType::ADD_FUND_SOURCE:
+			response = addFundSource(dynamic_cast<AddFundSourceData *>(data)->getUsername(), dynamic_cast<AddFundSourceData *>(data)->getCompany(), dynamic_cast<AddFundSourceData *>(data)->getFundID(), dynamic_cast<AddFundSourceData *>(data)->getCardType());
+			curUser = dynamic_cast<AddFundSourceData *>(data)->getUsername();
+			break;
 		default:
 			cerr << "ERROR: corrupted request from client." << endl;
 			exit(-1);
@@ -272,6 +278,12 @@ string addFunds(const string& username, int fundIndex, int amount)
 	}
 	string receipt = userMap[username]->addFunds(fundIndex, amount);
 	return receipt;
+}
+
+string addFundSource(const string &username, const string &company, const string &fundID, const string &cardType)
+{
+	// TODO implement this
+	return "";
 }
 
 //Loads user map and password map from a file

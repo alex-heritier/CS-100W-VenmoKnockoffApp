@@ -9,6 +9,7 @@
 #include "UserData.hpp"
 #include "PayData.hpp"
 #include "AddFundsData.hpp"
+#include "AddFundSourceData.hpp"
 #include "User.hpp"
 
 using namespace std;
@@ -28,7 +29,7 @@ void VKAClient::captureResponses()
         	string sender = serverConnection.readData(buf);
 
 		std::lock_guard<std::mutex> guard(responseMutex);	// lock response
-		cout << "Getting reponse from server..." << endl;
+		cout << "Getting response from server..." << endl;
 		response = string(reinterpret_cast<char *>(buf));
 	}
 }
@@ -128,5 +129,22 @@ void VKAClient::addFunds(string &username, string &fundTag, int amount)
 	// wait for response
         string res;
         while (!getResponse(res)) {}    // wait for response
+        cout << res << endl;
+}
+
+void VKAClient::addFundSource(string &username, string &company, string &fundID, string &cardType)
+{
+	// prepare data
+	AddFundSourceData addFundSourceData(username, company, fundID, cardType);
+	unsigned char buf[addFundSourceData.size() + 1]; // extra byte for command type
+        buf[0] = CommandType::ADD_FUND_SOURCE;
+        addFundSourceData.serialize(buf + 1);
+
+        // send data
+        serverConnection.sendData(buf, sizeof(buf));
+
+        // wait for response
+        string res;
+        while (!getResponse(res)) {}    // loop until response
         cout << res << endl;
 }

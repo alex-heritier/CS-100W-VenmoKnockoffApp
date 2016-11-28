@@ -10,9 +10,10 @@
 // Using this instead of an enum because this can be compared against char's without casting
 namespace CommandType {
 	constexpr char CREATE_USER 	= '0';
-	constexpr char LOGIN 	= '1';
+	constexpr char LOGIN 		= '1';
 	constexpr char PAY 		= '2';
 	constexpr char ADD_FUNDS 	= '3';
+	constexpr char ADD_FUND_SOURCE 	= '4';
 }
 
 constexpr unsigned int FIELD_SIZE = 32;	// max size for a single data field (ex. username, password, etc)

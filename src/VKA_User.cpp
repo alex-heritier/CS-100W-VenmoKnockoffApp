@@ -12,13 +12,15 @@ void processCreateUser(vector<string> &);
 void processLogin(vector<string> &);
 void processPay(vector<string> &);
 void processAddFunds(vector<string> &);
+void processAddFundSource(vector<string> &);
 
 void processCommand(string &command, VKAClient &app)
 {
-	string createUserCommand   = "create_user";
-	string loginCommand        = "login";
-	string payCommand          = "pay";
-	string addFundsCommand     = "add_funds";
+	string createUserCommand   	= "create_user";
+	string loginCommand        	= "login";
+	string payCommand          	= "pay";
+	string addFundsCommand     	= "add_funds";
+	string addFundSourceCommand 	= "add_fund_source";
 
 	vector<string> params;
 	if (command == createUserCommand) {
@@ -33,6 +35,9 @@ void processCommand(string &command, VKAClient &app)
 	} else if (command == addFundsCommand) {
 		processAddFunds(params);
 		app.addFunds(params[0], params[1],  std::stoi(params[2]));
+	} else if (command == addFundSourceCommand) {
+		processAddFundSource(params);
+		app.addFundSource(params[0], params[1], params[2], params[3]);
 	} else {
 		throw NonexistentCommandException(command);
 	}
@@ -101,7 +106,7 @@ void processAddFunds(vector<string> &params)
 	string fundTag;
 	string amount;
 	
-	cout << "Who are you?" << endl;
+	cout << "What is your username?" << endl;
 	cout << "> ";
 	getline(std::cin, username);
 
@@ -116,6 +121,44 @@ void processAddFunds(vector<string> &params)
 	params.push_back(username);
         params.push_back(fundTag);
         params.push_back(amount);
+}
+
+void processAddFundSource(vector<string> &params)
+{
+	string type;
+	string username;
+	string company;
+	string fundID;
+	string cardType;
+
+	cout << "What is your username?" << endl;
+	cout << "> ";
+	getline(std::cin, username);
+
+	cout << "Is this a bank account or a card?" << endl;
+	cout << "> ";
+	getline(std::cin, type);
+
+	string fundName = type == "bank" ? "bank account" : "card";
+	
+	cout << "What is the " << fundName << "'s company name?" << endl;
+	cout << "> ";
+	getline(std::cin, company);
+
+	cout << "What is the " << fundName << "'s number?" << endl;
+	cout << "> ";
+	getline(std::cin, fundID);
+
+	if (type == "card") {
+		cout << "What type of card is this?" << endl;
+		cout << "> ";
+		getline(std::cin, cardType);
+	}
+
+	params.push_back(username);
+	params.push_back(company);
+	params.push_back(fundID);
+	params.push_back(cardType);
 }
 
 int main(int argc, char **argv)

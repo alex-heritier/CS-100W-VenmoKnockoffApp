@@ -17,6 +17,7 @@ public:
 	void login(string &, string &);
 	void pay(string &, string &, int);
 	void addFunds(string &, string &, int);
+	void addFundSource(string &, string &, string &, string &);
 private:
 	// variables
 	User user;
