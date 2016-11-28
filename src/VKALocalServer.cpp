@@ -206,10 +206,10 @@ bool registerUser(const string& newUsername, const string& newPassword)
 	std::shared_ptr<User> newUser(new User(newUsername) );
 	
 	//Comment out 4 lines when adding FundSource command is fully implemented
-	std::shared_ptr<FundSource> defaultCard(new Card("Default Company", "credit", 100 * newUsername.length() + 1000 * newPassword.length() ) );
-	std::shared_ptr<FundSource> defaultBank(new Bank("Default Company 2", 101 * newUsername.length() + 1010 * newPassword.length()) );
-	newUser->addFundSource(defaultCard);
-	newUser->addFundSource(defaultBank);
+	//std::shared_ptr<FundSource> defaultCard(new Card("Default Company", "credit", 100 * newUsername.length() + 1000 * newPassword.length() ) );
+	//std::shared_ptr<FundSource> defaultBank(new Bank("Default Company 2", 101 * newUsername.length() + 1010 * newPassword.length()) );
+	//newUser->addFundSource(defaultCard);
+	//newUser->addFundSource(defaultBank);
 	
 	loggedInUsers.insert(newUsername); //Automatically log in new user
 	userMap.insert(std::pair<string, std::shared_ptr<User> >(newUsername, newUser)); //Add to userMap
@@ -243,13 +243,14 @@ bool loginUser(const string& inUsername, const string& inPassword)
 */
 string payTo(const string& sender, const string& receiver, int amount)
 {
+	
+	if(std::find(loggedInUsers.begin(), loggedInUsers.end(), sender) == loggedInUsers.end()) //User not logged in
+	{
+		return "User not logged in";
+	}
 	if(userMap.find(receiver) == userMap.end() ) //other user doesn't exist
 	{
 		return "Other user doesn't exist";
-	}
-	if(std::find(loggedInUsers.begin(), loggedInUsers.end(), sender) == loggedInUsers.end()) //no one is logged in
-	{
-		return "Not logged in";
 	}
 	
 	try
@@ -277,9 +278,9 @@ string payTo(const string& sender, const string& receiver, int amount)
 */
 string addFunds(const string& username, int fundIndex, int amount)
 {
-	if(std::find(loggedInUsers.begin(), loggedInUsers.end(), username) == loggedInUsers.end()) //no one is logged in
+	if(std::find(loggedInUsers.begin(), loggedInUsers.end(), username) == loggedInUsers.end())
 	{
-		return "Not is logged in.";
+		return "User not logged in.";
 	}
 	if(fundIndex >= userMap[username]->getFundSize() || fundIndex < 0)
 	{
@@ -292,7 +293,21 @@ string addFunds(const string& username, int fundIndex, int amount)
 string addFundSource(const string &username, const string &company, const string &fundID, const string &cardType)
 {
 	// TODO implement this
-	return "";
+	if(std::find(loggedInUsers.begin(), loggedInUsers.end(), username) == loggedInUsers.end())
+	{
+		return "User not logged in.";
+	}
+	if(cardType.empty())
+	{
+		std::shared_ptr<FundSource> bank(new Bank(company, atoi(fundID.c_str() ) ) );
+		userMap[username]->addFundSource(bank);
+	}
+	else
+	{
+		std::shared_ptr<FundSource> card(new Card(company, cardType, atoi(fundID.c_str() ) ) );
+		userMap[username]->addFundSource(card);
+	}
+	return "Added fund source";
 }
 
 //Loads user map and password map from a file

@@ -2,6 +2,8 @@
 #ifndef SERIALIZABLE_HPP
 #define SERIALIZABLE_HPP
 
+#include <iostream>
+#include <cstring>
 class Serializable {
 public:
 	virtual ~Serializable() {}
