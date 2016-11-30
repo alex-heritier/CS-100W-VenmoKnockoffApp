@@ -27,7 +27,8 @@ private:
 	std::mutex responseMutex;
 	// methods
 	void captureResponses();
-	bool getResponse(std::string &);
+	template<class F>
+	void waitForResponse(F);
 };
 
 #endif

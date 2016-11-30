@@ -1,6 +1,6 @@
 FLAGS = -g -Wall -std=c++11 
 ifeq ($(shell uname),Darwin)
-	FLAGS += -stdlib=libc++ -I/Users/Alex/School/17th\ Grade/sem1/CS\ 144/project/lib/boost_1_62_0
+	FLAGS += -stdlib=libc++ -I/usr/local/include
 	FLAGS += -L/usr/local/lib
 endif
 LFLAGS = $(FLAGS)

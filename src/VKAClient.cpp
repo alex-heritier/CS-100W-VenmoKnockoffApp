@@ -34,16 +34,18 @@ void VKAClient::captureResponses()
 	}
 }
 
-bool VKAClient::getResponse(string &res)
+template<class F>
+void VKAClient::waitForResponse(F f)
 {
 	std::lock_guard<std::mutex> guard(responseMutex);	// lock response
 
-	if (response.empty()) {
-		return false;
-	} else {
-		res = response;
-		response = "";
-		return true;
+	constexpr int WAIT_TIME = 10000;
+	for (int i = 0; i < WAIT_TIME; i++) {
+		if (!response.empty()) {
+			f(response);
+			response = "";
+			return;
+		}
 	}
 }
 
@@ -64,12 +66,11 @@ void VKAClient::createUser(string &username, string &password)
 	serverConnection.sendData(buf, sizeof(buf));
 
 	// wait for response
-        string res;
-        while (!getResponse(res)) {}    // wait for response
-        cout << res << endl;
-
-	// login after creating account
-	login(username, password);
+        waitForResponse([this, &username, &password](string res) {
+        	cout << res << endl;
+		// login after creating account
+		login(username, password);
+	});
 }
 
 void VKAClient::login(string &username, string &password)
@@ -89,13 +90,11 @@ void VKAClient::login(string &username, string &password)
         serverConnection.sendData(buf, sizeof(buf));
 
 	// wait for response
-        string res;
-        while (!getResponse(res)) {}    // wait for response
-        cout << res << endl;
-
-
-	// set current user
-	user = User(username);
+        waitForResponse([this, username](string res) {
+        	cout << res << endl;
+		// set current user
+		user = User(username);
+	});
 }
 
 void VKAClient::pay(string &sender, string &sendee, int amount)
@@ -110,9 +109,9 @@ void VKAClient::pay(string &sender, string &sendee, int amount)
 	serverConnection.sendData(buf, sizeof(buf));
 
 	// wait for response
-	string res;
-	while (!getResponse(res)) {}	// wait for response
-	cout << res << endl;
+	waitForResponse([](string res) {
+		cout << res << endl;
+	});
 }
 
 void VKAClient::addFunds(string &username, string &fundTag, int amount)
@@ -127,9 +126,9 @@ void VKAClient::addFunds(string &username, string &fundTag, int amount)
         serverConnection.sendData(buf, sizeof(buf));
 
 	// wait for response
-        string res;
-        while (!getResponse(res)) {}    // wait for response
-        cout << res << endl;
+        waitForResponse([](string res) {
+        	cout << res << endl;
+	});
 }
 
 void VKAClient::addFundSource(string &username, string &company, string &fundID, string &cardType)
@@ -144,7 +143,7 @@ void VKAClient::addFundSource(string &username, string &company, string &fundID,
         serverConnection.sendData(buf, sizeof(buf));
 
         // wait for response
-        string res;
-        while (!getResponse(res)) {}    // loop until response
-        cout << res << endl;
+        waitForResponse([](string res) {
+        	cout << res << endl;
+	});
 }
