@@ -1,7 +1,7 @@
 
 /**
  * VKALocalServer is the main file for the VenmoKnockoffApp local server.
- * MainClassUser and MainClassAI clients communicate with each other through this local server
+ * VKA_User and VKA_AI clients communicate with each other through this local server
  */
 
 #include <iostream>
