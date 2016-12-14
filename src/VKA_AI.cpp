@@ -116,9 +116,9 @@ int main(int argc, char **argv)
 	string username = "AIDude";
 	string password = "aiqwerty";
 	app.createUser(username, password);
-	std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+	//std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 	app.login(username, password);
-	std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+	//std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 	
 	//Adding a fund source
 	string comp = "Bad Company";
@@ -126,11 +126,11 @@ int main(int argc, char **argv)
 	string cardType = "credit";
 	string firstSource = "0";
 	app.addFundSource(username, comp, accNum, cardType);
-	std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+	//std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 	while(true)
 	{
 		app.addFunds(username, firstSource, 10000); //Perform basic task for the rest of time
-		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+		//std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 	}
 	return 0;
 }
