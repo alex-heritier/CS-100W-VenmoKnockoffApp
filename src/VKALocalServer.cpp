@@ -113,6 +113,7 @@ void captureRequest(struct connection &con) throw (NonexistentCommandException)
 	// fill connection
 	con.address = client_path;
 	con.type = buf[0];	// set type byte
+	cout << "Client socket name is: " << con.address << endl;
 	switch (con.type) {
                 case CommandType::CREATE_USER:
 			con.data = new UserData(buf + 1);	// skip type byte
@@ -196,6 +197,7 @@ void processRequest(struct connection &con) throw (NonexistentCommandException)
 		response += userMap[curUser]->toString();
 	}
         saveUserMaps();
+		cout << "Sending back thru socket: " << con.address << endl;
 		server->sendData(con.address, response);
 }
 
