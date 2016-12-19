@@ -14,13 +14,16 @@ void processPay(vector<string> &);
 void processAddFunds(vector<string> &);
 void processAddFundSource(vector<string> &);
 
+
+string createUserCommand   	= "create_user";
+string loginCommand        	= "login";
+string payCommand          	= "pay";
+string addFundsCommand     	= "add_funds";
+string addFundSourceCommand 	= "add_fund_source";
+	
 void processCommand(string &command, VKAClient &app)
 {
-	string createUserCommand   	= "create_user";
-	string loginCommand        	= "login";
-	string payCommand          	= "pay";
-	string addFundsCommand     	= "add_funds";
-	string addFundSourceCommand 	= "add_fund_source";
+
 
 	vector<string> params;
 	if (command == createUserCommand) {
@@ -169,6 +172,7 @@ int main(int argc, char **argv)
 	while(true) {
 		cout << endl;
         	cout << "Enter a command." << endl;
+			cout << "Choose from " << createUserCommand << ", " << loginCommand<< ", " << payCommand << ", " << addFundsCommand<< ", " << addFundSourceCommand << endl;
         	cout << "> ";
         	getline(std::cin, cmd);
 
